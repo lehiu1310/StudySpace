@@ -1,0 +1,24 @@
+const {chromium}=require('playwright');
+const path=require('path');
+(async()=>{
+ const browser=await chromium.launch({headless:true,channel:'msedge'});
+ const page=await browser.newPage({viewport:{width:1366,height:900}});
+ const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.goto('http://127.0.0.1:8080');
+ await page.getByLabel('Tên đăng nhập',{exact:true}).fill('admin');
+ await page.getByLabel('Mật khẩu',{exact:true}).fill(process.env.STUDYSPACE_ADMIN_PASSWORD);
+ await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();
+ await page.locator('#course-list .row').first().waitFor();
+ await page.screenshot({path:path.join(__dirname,'admin-desktop.png'),fullPage:true});
+ await page.getByRole('button',{name:'Báo cáo',exact:true}).click();
+ await page.locator('#student-report table').waitFor();
+ await page.screenshot({path:path.join(__dirname,'admin-report.png'),fullPage:true});
+ await page.setViewportSize({width:390,height:844});
+ await page.getByRole('button',{name:'Ngân hàng câu hỏi',exact:true}).click();
+ await page.screenshot({path:path.join(__dirname,'admin-mobile.png'),fullPage:true});
+ const overflow=await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth);
+ if(overflow||errors.length)throw Error(JSON.stringify({overflow,errors}));
+ console.log('PASS: admin login, content, report and mobile layout; no JS errors or horizontal overflow');
+ await page.getByRole('button',{name:'Đăng xuất',exact:true}).click();
+ await browser.close();
+})().catch(e=>{console.error(e);process.exit(1)});

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#fafbff"><title>Không gian giảng viên · StudySpace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="landing.css"><link rel="stylesheet" href="admin.css"><link rel="stylesheet" href="portal.css"><link rel="stylesheet" href="teacher.css"><link rel="stylesheet" href="teacher-ai.css"><link rel="stylesheet" href="teacher-polish.css"><link rel="stylesheet" href="workspace-experience.css?v=2"><link rel="stylesheet" href="teacher-refresh.css?v=5"><link rel="stylesheet" href="ai-status.css?v=1"><link rel="stylesheet" href="workspace-theme.css?v=3"><link rel="stylesheet" href="teacher-dashboard.css?v=10">
+<script defer src="workspace-theme.js?v=1"></script><script defer src="teacher.js?v=10"></script>
+</head>
+<body class="teacher-page">
+<svg class="teacher-icon-defs" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="teacher-icon-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20M8 7h8M8 10h8"/></symbol>
+  <symbol id="teacher-icon-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></symbol>
+  <symbol id="teacher-icon-file" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v5h5M8 13h8M8 17h8"/></symbol>
+  <symbol id="teacher-icon-quiz" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 4.1 1.7c-1.1 1-1.8 1.3-1.8 2.8M12 17h.01"/></symbol>
+  <symbol id="teacher-icon-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></symbol>
+  <symbol id="teacher-icon-sparkle" viewBox="0 0 24 24"><path d="m12 3 1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2L12 3Z"/><path d="m19 15 .9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15Z"/></symbol>
+</svg>
+<header class="teacher-topbar">
+  <a class="teacher-brand" href="/teacher.html" aria-label="StudySpace - Không gian giảng viên"><span class="teacher-logo">S</span><span>StudySpace</span></a>
+  <span class="topbar-context">Không gian giảng viên</span>
+  <div class="topbar-actions"><div class="teacher-user-menu"><button id="teacher-user-trigger" type="button" class="teacher-user-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="teacher-user-panel">GV</button><div id="teacher-user-panel" class="teacher-user-panel" hidden><span>Không gian giảng viên</span><button id="logout" class="logout-button" type="button" hidden>Đăng xuất</button></div></div></div>
+</header>
+<main class="teacher-page-main">
+  <form id="login" class="teacher-login"><span class="eyebrow">STUDYSPACE · GIẢNG VIÊN</span><h1>Đăng nhập giảng viên</h1><label>Tên đăng nhập<input name="username" required autocomplete="username"></label><label>Mật khẩu<input name="password" type="password" required autocomplete="current-password"></label><button class="primary-action">Đăng nhập</button></form>
+  <p id="status" role="status" aria-live="polite"></p>
+  <div id="workspace" class="teacher-workspace" hidden>
+    <aside class="portal-sidebar teacher-sidebar" aria-label="Điều hướng giảng viên">
+      <div class="sidebar-heading"><span class="sidebar-avatar">GV</span><span><b>Không gian giảng dạy</b><small>Quản lý nội dung học tập</small></span></div>
+      <span class="sidebar-label">QUẢN LÝ HỌC TẬP</span>
+      <a href="#teacher-overview"><span><svg><use href="#teacher-icon-sparkle"></use></svg></span>Tổng quan</a>
+      <a href="#teacher-courses"><span><svg><use href="#teacher-icon-book"></use></svg></span>Khóa học</a>
+      <a href="#teacher-chapters"><span><svg><use href="#teacher-icon-layers"></use></svg></span>Chương học</a>
+      <a href="#teacher-lessons"><span><svg><use href="#teacher-icon-file"></use></svg></span>Bài học &amp; tài liệu</a>
+      <a href="#teacher-questions"><span><svg><use href="#teacher-icon-quiz"></use></svg></span>Ngân hàng quiz</a>
+      <a href="#teacher-classes"><span><svg><use href="#teacher-icon-check"></use></svg></span>Lớp học &amp; báo cáo</a>
+      <div class="sidebar-note"><span>✦</span><b>Mỗi nội dung là một bước tiến</b><small>Xây dựng lộ trình rõ ràng để học viên học và ôn tập hiệu quả.</small></div>
+    </aside>
+    <div class="portal-main teacher-main">
+      <section class="teacher-welcome">
+        <div><span class="eyebrow">STUDYSPACE <i></i> GIẢNG VIÊN</span><h1>Quản lý nội dung <span class="text-gradient">giảng dạy.</span></h1><p>Tạo khóa học, xây dựng bài học và chuẩn bị quiz cho học viên.</p></div>
+        <a class="quick-action" href="#teacher-courses"><span>＋</span> Tạo nội dung</a>
+      </section>
+      <nav class="teacher-creation-path" aria-label="Quy trình xây dựng khóa học"><a href="#teacher-courses"><span>01</span><b>Khóa học</b><i>→</i></a><a href="#teacher-chapters"><span>02</span><b>Chương</b><i>→</i></a><a href="#teacher-lessons"><span>03</span><b>Bài học</b><i>→</i></a><a href="#teacher-questions"><span>04</span><b>Quiz</b><i>→</i></a><a href="#teacher-classes"><span>05</span><b>Lớp học</b></a></nav>
+      <section class="teacher-section teacher-overview" id="teacher-overview">
+        <div class="overview-hero"><div><span class="section-kicker">BẢNG ĐIỀU KHIỂN GIẢNG VIÊN</span><h2>Không gian giảng dạy</h2><p>Theo dõi nội dung, ngân hàng quiz và lớp học từ một nơi.</p></div><a class="primary-action" href="#teacher-courses">＋ Tạo khóa học</a></div>
+        <div class="stats teacher-stats overview-stats">
+          <article><div class="stat-heading"><span class="stat-icon indigo"><svg><use href="#teacher-icon-book"></use></svg></span><small>KHÓA HỌC</small></div><strong id="stat-courses">0</strong><p>Tổng khóa học</p></article>
+          <article><div class="stat-heading"><span class="stat-icon teal"><svg><use href="#teacher-icon-check"></use></svg></span><small>ĐÃ XUẤT BẢN</small></div><strong id="stat-published">0</strong><p>Đang mở cho học viên</p></article>
+          <article><div class="stat-heading"><span class="stat-icon cyan"><svg><use href="#teacher-icon-file"></use></svg></span><small>BÀI HỌC</small></div><strong id="stat-lessons">0</strong><p>Nội dung đã xây dựng</p></article>
+          <article><div class="stat-heading"><span class="stat-icon amber"><svg><use href="#teacher-icon-quiz"></use></svg></span><small>CÂU HỎI QUIZ</small></div><strong id="stat-questions">0</strong><p>Trong ngân hàng</p></article>
+        </div>
+        <div class="teacher-attention">
+          <div class="attention-heading"><div><span class="section-kicker">THEO DÕI LỚP HỌC</span><h3>Cần chú ý</h3></div><a href="#teacher-classes">Mở báo cáo lớp →</a></div>
+          <div class="teacher-attention-grid"><section><h4>Học viên cần hỗ trợ</h4><div id="attention-students" class="attention-list"><p>Đang tổng hợp tiến độ lớp…</p></div></section><section><h4>Câu hỏi sai nhiều</h4><div id="attention-questions" class="attention-list"><p>Đang tổng hợp kết quả quiz…</p></div></section><section class="attention-classes"><h4>Lớp đang phụ trách</h4><div id="attention-classes" class="attention-list"><p>Đang tải danh sách lớp…</p></div></section></div>
+        </div>
+        <div class="overview-footer"><div><span class="overview-live-mark"></span><b id="overview-readiness-title">Dữ liệu giảng dạy đã đồng bộ</b><p id="overview-readiness-copy">Số liệu được lấy từ khóa học và lớp bạn đang phụ trách.</p></div><a class="secondary-action" href="#teacher-classes">Mở báo cáo lớp <span aria-hidden="true">→</span></a></div>
+      </section>
+
+      <section class="teacher-section" id="teacher-courses">
+        <div class="section-head"><div><span class="section-kicker">LỘ TRÌNH HỌC</span><h2>Khóa học</h2><p>Quản lý môn học và trạng thái xuất bản.</p></div><div class="section-tools"><span class="section-count" id="course-count">— môn</span><button type="button" id="student-preview-button" class="secondary-action">Xem như học viên</button><button type="button" class="teacher-add-button" data-open-editor="course-editor" aria-label="Thêm khóa học" title="Thêm khóa học">+</button></div></div>
+        <div id="course-list" class="teacher-list"></div>
+        <details class="editor-panel" id="course-editor"><summary><span class="add-mark">＋</span><span id="course-editor-title">Thêm khóa học</span></summary><form id="course-form" class="teacher-form"><button type="button" class="drawer-close" data-close-editor aria-label="Đóng biểu mẫu">×</button><input name="id" type="hidden"><div class="form-grid"><label>Tên môn<input name="title" required maxlength="160" placeholder="Ví dụ: Cơ sở dữ liệu"></label><label class="wide-field">Mô tả<textarea name="description" required maxlength="10000" rows="3" placeholder="Mô tả ngắn về mục tiêu và nội dung môn học"></textarea></label></div><div class="teacher-ai-assist"><button class="teacher-ai-trigger" id="ai-course-draft" type="button"><svg aria-hidden="true"><use href="#teacher-icon-sparkle"></use></svg> Gemini hỗ trợ soạn môn học</button><span>Nhập tên/chủ đề môn ở trên để AI đề xuất mô tả và đề cương 4 chương.</span><div id="ai-course-results" class="teacher-ai-results" aria-live="polite"></div></div><label class="publish-toggle"><input name="published" type="checkbox"><span><b>Xuất bản khóa học</b><small>Học viên có thể tìm thấy và bắt đầu học.</small></span></label><div class="form-actions"><button class="primary-action">Lưu khóa học</button><button type="reset" class="secondary-action">Làm mới</button></div></form></details>
+      </section>
+
+      <section class="teacher-section" id="teacher-chapters">
+        <div class="section-head"><div><span class="section-kicker">CẤU TRÚC MÔN HỌC</span><h2>Chương học</h2><p>Sắp xếp nội dung theo trình tự dễ theo dõi.</p></div><div class="section-tools"><span class="section-count" id="chapter-count">— chương</span><button type="button" class="teacher-add-button" data-open-editor="chapter-editor" aria-label="Thêm chương học" title="Thêm chương học">+</button></div></div>
+        <div id="chapter-list" class="teacher-list"></div>
+        <details class="editor-panel" id="chapter-editor"><summary><span class="add-mark">＋</span><span id="chapter-editor-title">Thêm chương học</span></summary><form id="chapter-form" class="teacher-form"><button type="button" class="drawer-close" data-close-editor aria-label="Đóng biểu mẫu">×</button><input name="id" type="hidden"><div class="form-grid"><label>Khóa học<select name="courseId" required></select></label><label>Tên chương<input name="title" required maxlength="160" placeholder="Tên chương hoặc chủ đề muốn soạn"></label><label>Thứ tự<input name="position" type="number" min="0" value="1" required></label></div><div class="teacher-ai-assist"><button class="teacher-ai-trigger" id="ai-chapter-draft" type="button"><svg aria-hidden="true"><use href="#teacher-icon-sparkle"></use></svg> Gemini gợi ý chương &amp; bài học</button><span>Chọn môn học; có thể nhập chủ đề chương để hướng AI.</span><div id="ai-chapter-results" class="teacher-ai-results" aria-live="polite"></div></div><div class="form-actions"><button class="primary-action">Lưu chương</button><button type="reset" class="secondary-action">Làm mới</button></div></form></details>
+      </section>
+
+      <section class="teacher-section" id="teacher-lessons">
+        <div class="section-head"><div><span class="section-kicker">TÀI LIỆU GIẢNG DẠY</span><h2>Bài học &amp; tài liệu</h2><p>Thêm nội dung bài học, file tham khảo hoặc liên kết HTTPS.</p></div><div class="section-tools"><span class="section-count" id="lesson-count">— bài</span><button type="button" class="teacher-add-button" data-open-editor="lesson-editor" aria-label="Thêm bài học" title="Thêm bài học">+</button></div></div>
+        <div id="lesson-list" class="teacher-list"></div>
+        <details class="editor-panel" id="lesson-editor"><summary><span class="add-mark">＋</span><span id="lesson-editor-title">Thêm bài học</span></summary><form id="lesson-form" class="teacher-form"><button type="button" class="drawer-close" data-close-editor aria-label="Đóng biểu mẫu">×</button><input name="id" type="hidden"><div class="form-grid"><label>Chương<select name="chapterId" required></select></label><label>Tên bài<input name="title" required maxlength="160" placeholder="Tên bài hoặc chủ đề muốn soạn"></label><label class="wide-field">Nội dung<textarea name="content" rows="6" required maxlength="100000" placeholder="Nội dung học tập"></textarea></label><label>Tải PDF/PPT/PPTX<input name="materialFile" type="file" accept=".pdf,.ppt,.pptx,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"><small class="field-help">Tối đa 25 MB</small></label><label>Liên kết video/tài liệu<input name="materialUrl" type="url" pattern="https://.*" maxlength="2000" placeholder="https://..."><small class="field-help">Chỉ chấp nhận liên kết HTTPS</small></label><label>Thứ tự trong chương<input name="position" type="number" min="0" value="1" required></label></div><div class="teacher-ai-assist"><button class="teacher-ai-trigger" id="ai-lesson-draft" type="button"><svg aria-hidden="true"><use href="#teacher-icon-sparkle"></use></svg> Gemini soạn nội dung bài</button><span>Chọn chương; nhập tên bài hoặc ý tưởng để tạo bản nháp có ví dụ và ý chính.</span><div id="ai-lesson-results" class="teacher-ai-results" aria-live="polite"></div></div><div class="form-actions"><button class="primary-action">Lưu bài học</button><button type="reset" class="secondary-action">Làm mới</button></div></form></details>
+      </section>
+
+      <section class="teacher-section" id="teacher-questions">
+        <div class="section-head"><div><span class="section-kicker">KIỂM TRA KIẾN THỨC</span><h2>Ngân hàng quiz</h2><p>Soạn câu hỏi trắc nghiệm và giải thích đáp án.</p></div><div class="section-tools"><span class="section-count" id="question-count">— câu</span><button type="button" class="teacher-add-button" data-open-editor="question-editor" aria-label="Thêm câu hỏi" title="Thêm câu hỏi">+</button></div></div>
+        <div class="teacher-ai-tool"><div><span class="section-kicker">TRỢ LÝ SOẠN QUIZ</span><h3>Tạo câu hỏi từ nội dung chương</h3><p>Gemini dùng nội dung bài học khi có cấu hình; nếu không, trợ lý tạo câu hỏi khung offline để bạn rà soát. Bản nháp chưa lưu.</p></div><div class="teacher-ai-controls"><label>Chương<select id="ai-chapter-select" required></select></label><label>Số câu<select id="ai-question-count"><option value="3">3 câu</option><option value="5" selected>5 câu</option><option value="6">6 câu</option></select></label><label>Độ khó<select id="ai-question-difficulty"><option value="1">Dễ</option><option value="2" selected>Trung bình</option><option value="3">Khó</option></select></label><button class="primary-action" id="ai-generate-questions" type="button">✦ Tạo bản nháp</button></div><div id="teacher-ai-results" class="teacher-ai-results" aria-live="polite"></div></div>
+        <details class="editor-panel bulk-quiz-panel"><summary><span class="add-mark">⇧</span><span>Nhập câu hỏi từ CSV</span><span class="summary-hint">Xem trước trước khi lưu</span></summary><div class="teacher-form"><p class="field-help">Mỗi dòng gồm: chapterId,difficulty,prompt,A,B,C,D,correctOption,explanation. correctOption nhận A/B/C/D hoặc 0/1/2/3.</p><textarea id="quiz-csv-input" rows="6" placeholder="chapterId,difficulty,prompt,A,B,C,D,correctOption,explanation"></textarea><div class="form-actions"><button type="button" id="quiz-csv-preview" class="secondary-action">Kiểm tra &amp; xem trước</button><button type="button" id="quiz-csv-import" class="primary-action" disabled>Lưu câu hợp lệ</button></div><div id="quiz-csv-results" aria-live="polite"></div></div></details>
+        <div id="question-list" class="teacher-list"></div>
+        <details class="editor-panel" id="question-editor"><summary><span class="add-mark">＋</span><span id="question-editor-title">Thêm câu hỏi</span></summary><form id="question-form" class="teacher-form"><button type="button" class="drawer-close" data-close-editor aria-label="Đóng biểu mẫu">×</button><input name="id" type="hidden"><div class="form-grid"><label>Chương<select name="chapterId" required></select></label><label>Độ khó<select name="difficulty"><option value="1">Dễ</option><option value="2">Trung bình</option><option value="3">Khó</option></select></label><label class="wide-field">Câu hỏi<textarea name="prompt" required maxlength="10000" rows="3" placeholder="Nhập nội dung câu hỏi hoặc chủ đề muốn hỏi"></textarea><span class="field-help">Nhập chủ đề nếu muốn AI tập trung, hoặc để trống để AI tự chọn theo nội dung chương.</span><div class="teacher-ai-assist teacher-question-assist"><button class="teacher-ai-trigger" id="ai-single-question" type="button"><svg aria-hidden="true"><use href="#teacher-icon-sparkle"></use></svg> AI hỗ trợ soạn câu này</button><span>Dựa trên chương và độ khó đã chọn. AI điền câu hỏi, 4 đáp án và giải thích để bạn rà soát.</span><div id="ai-single-question-result" class="teacher-ai-results" aria-live="polite"></div></div></label><div class="wide-field options-grid"><label>A<input name="a" required maxlength="1000"></label><label>B<input name="b" required maxlength="1000"></label><label>C<input name="c" required maxlength="1000"></label><label>D<input name="d" required maxlength="1000"></label></div><label>Đáp án đúng<select name="correctOption"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></label><label class="wide-field">Giải thích đáp án<textarea name="explanation" required maxlength="10000" rows="3" placeholder="Giải thích ngắn gọn vì sao đáp án đúng"></textarea></label></div><div class="form-actions"><button class="primary-action">Lưu câu hỏi</button><button type="reset" class="secondary-action">Làm mới</button></div></form></details>
+      </section>
+
+      <section class="teacher-section" id="teacher-classes">
+        <div class="section-head"><div><span class="section-kicker">LỚP HỌC</span><h2>Lớp &amp; học viên</h2><p>Tạo mã tham gia, theo dõi tiến độ và trao đổi cùng học viên.</p></div></div>
+        <form id="class-form" class="teacher-form class-create-form"><div class="form-grid"><label>Khóa học đã xuất bản<select name="courseId" required></select></label><label>Tên lớp<input name="name" required maxlength="120" placeholder="Ví dụ: CSDL · Nhóm 01"></label></div><div class="form-actions"><button class="primary-action">Tạo lớp học</button></div></form>
+        <form id="announcement-form" class="teacher-form announcement-form"><div class="section-head"><div><span class="section-kicker">THÔNG BÁO</span><h3>Gửi tin cho lớp</h3><p>Thông báo sẽ xuất hiện trên tổng quan của học viên trong lớp.</p></div></div><div class="form-grid"><label>Lớp học<select name="classId" required></select></label><label class="wide-field">Nội dung<textarea name="body" rows="3" maxlength="2000" required placeholder="Lịch học, nội dung cần chuẩn bị…"></textarea></label></div><div class="form-actions"><button class="primary-action">Gửi thông báo</button></div></form>
+        <div id="class-list" class="teacher-class-list"></div>
+        <div id="class-report" class="class-report" hidden></div>
+        <div id="class-discussion" class="class-discussion" hidden></div>
+      </section>
+    </div>
+    <nav class="teacher-mobile-nav" aria-label="Điều hướng giảng viên trên điện thoại">
+      <a href="#teacher-overview"><svg><use href="#teacher-icon-sparkle"></use></svg><span>Tổng quan</span></a>
+      <a href="#teacher-courses"><svg><use href="#teacher-icon-book"></use></svg><span>Khóa học</span></a>
+      <a href="#teacher-questions"><svg><use href="#teacher-icon-quiz"></use></svg><span>Quiz</span></a>
+      <a href="#teacher-classes"><svg><use href="#teacher-icon-check"></use></svg><span>Lớp học</span></a>
+      <button id="teacher-more-trigger" type="button" aria-haspopup="dialog"><svg><use href="#teacher-icon-layers"></use></svg><span>Thêm</span></button>
+    </nav>
+    <dialog id="teacher-more-drawer" class="teacher-more-drawer" aria-labelledby="teacher-more-title"><div class="drawer-heading"><div><span class="section-kicker">QUẢN LÝ NỘI DUNG</span><h2 id="teacher-more-title">Thêm tác vụ</h2></div><button type="button" class="drawer-close" data-close-more aria-label="Đóng">×</button></div><a href="#teacher-chapters"><svg><use href="#teacher-icon-layers"></use></svg>Chương học</a><a href="#teacher-lessons"><svg><use href="#teacher-icon-file"></use></svg>Bài học &amp; tài liệu</a></dialog>
+  </div>
+  <dialog id="student-preview-dialog" class="student-preview-dialog"><form method="dialog"><button class="modal-close" aria-label="Đóng">×</button></form><div id="student-preview-content"></div></dialog>
+</main>
+</body>
+</html>

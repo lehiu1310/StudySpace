@@ -1,0 +1,42 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const { chromium } = require('C:/Users/ADMIN/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const out = path.resolve('docs/reference/studyspace/desktop-1440x900');
+await fs.mkdir(out, { recursive: true });
+const browser = await chromium.launch({ headless: true, executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+const errors = [];
+page.on('pageerror', error => errors.push(error.message));
+await page.addInitScript(() => sessionStorage.setItem('studyspace_student_session', 'student-test-token'));
+await page.route('**/api/**', async route => {
+  const url = new URL(route.request().url());
+  if (url.pathname === '/api/auth/me') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ id: 11, username: 'student-demo', displayName: 'Học viên demo', role: 'STUDENT' }) });
+  if (url.pathname === '/api/courses') return route.fulfill({ status: 200, contentType: 'application/json', body: '[]' });
+  if (url.pathname === '/api/progress') return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ history: [] }) });
+  return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+});
+
+await page.goto('http://localhost:8080/student.html', { waitUntil: 'networkidle' });
+await page.getByRole('heading', { name: /Chào bạn/ }).waitFor();
+await page.screenshot({ path: path.join(out, 'student-dashboard-g0.png') });
+await page.getByRole('link', { name: 'Trang chủ' }).click();
+await page.waitForURL('http://localhost:8080/');
+const dashboardCta = page.locator('.nav-cta');
+await dashboardCta.getByText('Vào Dashboard').waitFor();
+if (await dashboardCta.getAttribute('href') !== '/student.html') throw Error('Landing CTA does not route the signed-in student to their dashboard');
+if (await page.evaluate(() => sessionStorage.getItem('studyspace_student_session')) !== 'student-test-token') throw Error('Student session was lost while visiting the landing page');
+await page.screenshot({ path: path.join(out, 'landing-session-g0.png') });
+await dashboardCta.click();
+await page.waitForURL('**/student.html');
+await page.getByRole('heading', { name: /Chào bạn/ }).waitFor();
+if (await page.evaluate(() => sessionStorage.getItem('studyspace_student_session')) !== 'student-test-token') throw Error('Student session was lost when returning to the dashboard');
+if (errors.length) throw Error(errors.join('\n'));
+const guest = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+await guest.goto('http://localhost:8080/', { waitUntil: 'networkidle' });
+if (await guest.locator('.nav-cta').getAttribute('href') !== '/login.html') throw Error('Guest landing CTA should still open login');
+await guest.close();
+await browser.close();
+console.log('GĐ0 session flow passed: student dashboard → landing → role-aware dashboard CTA → student dashboard; screenshots captured at 1440x900.');

@@ -1,0 +1,19 @@
+'use strict';
+const $=id=>document.getElementById(id);
+const form=$('account-form'),button=$('submit-button');
+let registering=false;
+const staffLanding=new URLSearchParams(location.search).has('staff');
+if(staffLanding){$('form-title').innerHTML='Đăng nhập <span class="text-gradient">không gian quản lý.</span>';$('form-intro').textContent='Dùng tài khoản giảng viên hoặc quản trị viên. StudySpace sẽ tự mở đúng khu vực.';$('switch-mode').hidden=true;$('switch-copy').hidden=true;$('staff-link').hidden=true;}
+function error(message){const node=$('form-error');node.textContent=message;node.hidden=false;}
+function clearError(){$('form-error').textContent='';$('form-error').hidden=true;}
+function toast(message){const node=$('toast');node.textContent=message;node.classList.add('visible');setTimeout(()=>node.classList.remove('visible'),3200);}
+function setRegister(next){registering=next;clearError();$('form-title').innerHTML=next?'Tạo tài khoản <span class="text-gradient">học tập.</span>':'Chào mừng <span class="text-gradient">trở lại.</span>';$('form-intro').textContent=next?'Tạo tài khoản học viên để lưu bài học, quiz và tiến độ của bạn.':'Đăng nhập để tiếp tục bài học và theo dõi tiến độ của bạn.';$('submit-button').querySelector('.submit-label').textContent=next?'Tạo tài khoản':'Đăng nhập';$('switch-copy').textContent=next?'Đã có tài khoản?':'Chưa có tài khoản?';$('switch-mode').textContent=next?'Đăng nhập':'Đăng ký học viên';$('password').autocomplete=next?'new-password':'current-password';}
+$('switch-mode').onclick=()=>setRegister(!registering);
+$('password-toggle').onclick=()=>{const input=$('password');const visible=input.type==='password';input.type=visible?'text':'password';$('password-toggle').textContent=visible?'Ẩn':'Hiện';$('password-toggle').setAttribute('aria-label',visible?'Ẩn mật khẩu':'Hiện mật khẩu');};
+$('return-home').onclick=()=>location.assign('/');
+async function submitAccount(event){event.preventDefault();clearError();if(!form.reportValidity())return;button.disabled=true;button.classList.add('busy');const values=Object.fromEntries(new FormData(form));
+ try{const response=await fetch('/api/auth/'+(registering?'register':'login'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:values.username.trim(),password:values.password})});const raw=await response.text();let result={};try{result=raw?JSON.parse(raw):{};}catch{throw Error('Máy chủ trả dữ liệu không hợp lệ.');}
+  if(!response.ok){if(response.status===409)throw Error('Tên đăng nhập này đã được sử dụng.');if(response.status===401)throw Error('Tên đăng nhập hoặc mật khẩu chưa đúng.');if(response.status===400)throw Error('Tên đăng nhập cần 3–80 ký tự; mật khẩu cần ít nhất 8 ký tự.');throw Error(result.error||'Chưa thể kết nối. Vui lòng thử lại.');}
+  const role=result.account?.role;if(role==='ADMIN'){sessionStorage.setItem('studyspace_admin_session',result.token);sessionStorage.setItem('studyspace_active_role',role);toast('Đăng nhập quản trị thành công.');location.assign('/admin.html');return;}if(role==='TEACHER'){sessionStorage.setItem('studyspace_teacher_session',result.token);sessionStorage.setItem('studyspace_active_role',role);toast('Đăng nhập giảng viên thành công.');location.assign('/teacher.html');return;}if(role==='STUDENT'){sessionStorage.setItem('studyspace_student_session',result.token);sessionStorage.setItem('studyspace_active_role',role);sessionStorage.setItem('studyspace_welcome',registering?'Tài khoản học viên đã được tạo.':'Đăng nhập thành công.');location.assign('/student.html');return;}throw Error('Tài khoản chưa được nhận diện. Vui lòng liên hệ quản trị viên.');
+ }catch(cause){error(cause.message||'Đã xảy ra lỗi. Vui lòng thử lại.');}finally{button.disabled=false;button.classList.remove('busy');}}
+form.addEventListener('submit',submitAccount);

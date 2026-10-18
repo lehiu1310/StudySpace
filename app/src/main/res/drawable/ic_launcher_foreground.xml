@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Outer Glow Circular Ring (represents Pomodoro loop) -->
+    <path
+        android:fillColor="#00E5FF"
+        android:pathData="M54,16c-20.99,0 -38,17.01 -38,38s17.01,38 38,38s38,-17.01 38,-38S74.99,16 54,16zM54,86c-17.65,0 -32,-14.35 -32,-32s14.35,-32 32,-32s32,14.35 32,32S71.65,86 54,86z"/>
+    
+    <!-- Core Academic Book Silhouette (represents Study) -->
+    <path
+        android:fillColor="#BD93F9"
+        android:pathData="M35,42c0,0 7,1 14,6c2,1 2,1 4,-1c7,-5 14,-6 14,-6v24c0,0 -7,1 -14,4c-2,1 -2,1 -4,-1c-7,-3 -14,-4 -14,-4V42z"/>
+        
+    <!-- Book SPINE line -->
+    <path
+        android:strokeColor="#00E5FF"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round"
+        android:pathData="M53,47v24"/>
+</vector>

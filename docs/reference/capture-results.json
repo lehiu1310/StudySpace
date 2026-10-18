@@ -1,0 +1,326 @@
+[
+  {
+    "site": "vitaltrack",
+    "name": "landing",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "guide",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/guide",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "login",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/login",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "register",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/register",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "forgot-password",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/forgot-password",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "dashboard",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/dashboard",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "health",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/health",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "ai-diagnostics",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/ai-diagnostics",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "devices",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/devices",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "analytics",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/analytics",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "goals",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/goals",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "reminders",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/reminders",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "profile",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/profile",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-dashboard",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/admin",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-users",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/admin/users",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-telemetry",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/admin/telemetry",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-ai-reviews",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/admin/ai-reviews",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-devices",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/admin/devices",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-audit-logs",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/admin/audit-logs",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-logs",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/admin/logs",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-settings",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://127.0.0.1:5173/admin/settings",
+    "errors": []
+  },
+  {
+    "site": "studyspace",
+    "name": "admin-login",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://localhost:8080/",
+    "errors": [
+      "console: Failed to load resource: the server responded with a status of 404 ()"
+    ]
+  },
+  {
+    "site": "studyspace",
+    "name": "teacher-login",
+    "viewport": "desktop-1440x900",
+    "finalUrl": "http://localhost:8080/teacher.html",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "landing",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "guide",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/guide",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "login",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/login",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "register",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/register",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "forgot-password",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/forgot-password",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "dashboard",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/dashboard",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "health",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/health",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "ai-diagnostics",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/ai-diagnostics",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "devices",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/devices",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "analytics",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/analytics",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "goals",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/goals",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "reminders",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/reminders",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "profile",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/profile",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-dashboard",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/admin",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-users",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/admin/users",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-telemetry",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/admin/telemetry",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-ai-reviews",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/admin/ai-reviews",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-devices",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/admin/devices",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-audit-logs",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/admin/audit-logs",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-logs",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/admin/logs",
+    "errors": []
+  },
+  {
+    "site": "vitaltrack",
+    "name": "admin-settings",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://127.0.0.1:5173/admin/settings",
+    "errors": []
+  },
+  {
+    "site": "studyspace",
+    "name": "admin-login",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://localhost:8080/",
+    "errors": []
+  },
+  {
+    "site": "studyspace",
+    "name": "teacher-login",
+    "viewport": "mobile-390x844",
+    "finalUrl": "http://localhost:8080/teacher.html",
+    "errors": []
+  }
+]

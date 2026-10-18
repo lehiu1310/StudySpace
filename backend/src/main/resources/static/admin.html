@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>StudySpace · Quản trị học tập</title>
+<link rel="stylesheet" href="admin.css">
+<link rel="stylesheet" href="admin-management.css">
+<link rel="stylesheet" href="portal.css">
+<script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+<script defer src="admin.js?v=2"></script>
+</head>
+<body>
+<header><a href="/" aria-label="StudySpace - Trang chủ"><strong>StudySpace</strong></a><span>Quản trị học tập</span><a href="/teacher.html">Khu vực giảng viên</a><button id="logout" hidden>Đăng xuất</button></header>
+<main>
+<form id="login"><h1>Đăng nhập quản trị</h1><label>Tên đăng nhập<input name="username" required autocomplete="username"></label><label>Mật khẩu<input name="password" type="password" required autocomplete="current-password"></label><button>Đăng nhập</button></form>
+<p id="status" role="status" aria-live="polite"></p>
+<div id="workspace" hidden>
+<nav class="portal-sidebar" aria-label="Quản trị"><strong>Quản trị hệ thống</strong><button data-tab="courses">Nội dung học</button><button data-tab="questions">Ngân hàng câu hỏi</button><button data-tab="users">Người dùng</button><button data-tab="reports">Báo cáo</button><button data-tab="audit">Nhật ký thao tác</button></nav>
+<div class="stats"><article><span>MÔN HỌC</span><strong id="stat-courses">0</strong><small>Trong hệ thống</small></article><article><span>BÀI HỌC</span><strong id="stat-lessons">0</strong><small>Nội dung đã tạo</small></article><article><span>NGƯỜI HỌC</span><strong id="stat-students">0</strong><small>Tài khoản học viên</small></article><article><span>ĐIỂM QUIZ TB</span><strong id="stat-average">—</strong><small>Trên các lượt nộp</small></article></div>
+<section id="courses">
+<h1>Nội dung học tập</h1><div class="toolbar"><label>Lọc khóa học<select id="course-filter"><option value="all">Tất cả trạng thái</option><option value="published">Đã xuất bản</option><option value="draft">Bản nháp</option></select></label><span id="course-count" aria-live="polite"></span></div>
+<div class="columns"><div><h2>Môn học</h2><div id="course-list"></div><form id="course-form"><input name="id" type="hidden"><label>Tên môn<input name="title" required maxlength="160"></label><label>Mô tả<textarea name="description" required></textarea></label><label class="check"><input name="published" type="checkbox">Xuất bản</label><div class="actions"><button>Lưu môn học</button><button type="reset" class="secondary">Tạo mới</button></div></form></div>
+<div><h2>Chương</h2><form id="chapter-form"><input name="id" type="hidden"><label>Môn học<select name="courseId" required></select></label><label>Tên chương<input name="title" required maxlength="160"></label><label>Thứ tự<input name="position" type="number" min="0" value="1" required></label><div class="actions"><button>Lưu chương</button><button type="reset" class="secondary">Tạo mới</button></div></form><div id="chapter-list"></div></div></div>
+<h2>Bài học</h2><form id="lesson-form"><input name="id" type="hidden"><label>Chương<select name="chapterId" required></select></label><label>Tên bài<input name="title" required maxlength="160"></label><label>Nội dung<textarea name="content" rows="7" required></textarea></label><label>Tài liệu PDF / Video / Tham khảo (HTTPS)<input name="materialUrl" type="url" pattern="https://.*"></label><label>Thứ tự<input name="position" type="number" min="0" value="1" required></label><div class="actions"><button>Lưu bài học</button><button type="reset" class="secondary">Tạo mới</button></div></form><div id="lesson-list"></div>
+</section>
+<section id="questions" hidden><h1>Ngân hàng câu hỏi</h1><form id="question-form"><input name="id" type="hidden"><label>Chương<select name="chapterId" required></select></label><label>Câu hỏi<textarea name="prompt" required></textarea></label><div class="columns"><label>A<input name="a" required></label><label>B<input name="b" required></label><label>C<input name="c" required></label><label>D<input name="d" required></label></div><label>Đáp án đúng<select name="correctOption"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select></label><label>Độ khó<select name="difficulty"><option value="1">Dễ</option><option value="2">Trung bình</option><option value="3">Khó</option></select></label><label>Giải thích<textarea name="explanation" required></textarea></label><div class="actions"><button>Lưu câu hỏi</button><button type="reset" class="secondary">Tạo mới</button></div></form><div id="question-list"></div></section>
+<section id="users" hidden><h1>Người dùng</h1><div class="toolbar"><label>Tìm tài khoản<input id="user-search" type="search" placeholder="Tên, email hoặc tên hiển thị"></label><label>Vai trò<select id="user-role-filter"><option value="all">Tất cả vai trò</option><option value="STUDENT">Học viên</option><option value="TEACHER">Giảng viên</option><option value="ADMIN">Quản trị viên</option></select></label><label>Trạng thái<select id="user-state-filter"><option value="all">Tất cả trạng thái</option><option value="enabled">Hoạt động</option><option value="disabled">Đã khóa</option></select></label></div><div id="user-list"></div></section>
+<section id="reports" hidden><h1>Kết quả học tập</h1><button id="export">Tải CSV</button><div class="chart"><canvas id="score-chart" aria-label="Điểm trung bình sinh viên" role="img"></canvas></div><div id="student-report"></div><h2>Câu hỏi cần ôn tập</h2><div id="question-report"></div></section>
+<section id="audit" hidden><h1>Nhật ký thao tác quản trị</h1><p class="muted">Tối đa 200 thao tác gần nhất. Nhật ký không chứa mật khẩu hoặc token.</p><div id="audit-list"></div></section>
+</div>
+</main>
+</body></html>

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="StudySpace giúp sinh viên học có mục tiêu, biết chương nào cần ôn và theo dõi tiến độ rõ ràng.">
+  <title>StudySpace · Học đúng chỗ cần học</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="landing.css">
+  <script defer src="landing.js?v=home-routing-2"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="StudySpace - Trang chủ">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><path d="m2.5 9.2 9.5-5 9.5 5-9.5 5-9.5-5Z"/><path d="M6.5 11.4v4.2c3.4 2.4 7.6 2.4 11 0v-4.2M21.5 9.3v5.1"/></svg>
+      </span>
+      <span>StudySpace</span>
+    </a>
+    <nav class="main-nav" aria-label="Điều hướng chính">
+      <a class="active" href="#home">Trang chủ</a>
+      <a href="#features">Tính năng</a>
+      <a href="#how-it-works">Cách hoạt động</a>
+      <a href="#guide">Hướng dẫn</a>
+    </nav>
+    <details class="mobile-menu">
+      <summary aria-label="Mở điều hướng"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></summary>
+      <nav class="mobile-menu-panel" aria-label="Điều hướng di động">
+        <a href="#home">Trang chủ</a><a href="#features">Tính năng</a><a href="#how-it-works">Cách hoạt động</a><a href="#guide">Hướng dẫn</a><a href="/login.html">Đăng nhập</a>
+      </nav>
+    </details>
+    <a class="button button-primary nav-cta" href="/login.html">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      Dashboard
+    </a>
+  </header>
+
+  <main>
+    <section class="hero section-wrap" id="home">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="sparkle" aria-hidden="true">✦</span> HỌC CÓ MỤC TIÊU · TIẾN BỘ CÓ SỐ LIỆU</div>
+        <h1>Biết mình yếu chương nào.<br><span class="text-gradient">Học đúng chỗ cần học.</span></h1>
+        <p class="hero-description">StudySpace biến việc ôn tập rời rạc thành lộ trình rõ ràng: học bài, làm quiz, nhận ra phần còn yếu và tiến bộ từng ngày.</p>
+        <div class="hero-actions">
+          <a class="button button-primary button-large" href="/login.html">Bắt đầu miễn phí <span aria-hidden="true">→</span></a>
+          <a class="button button-quiet button-large" href="#features">Khám phá tính năng <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="trust-row" aria-label="Điểm nổi bật">
+          <span><i class="trust-icon trust-purple" aria-hidden="true">✓</i> Lộ trình học có cấu trúc</span>
+          <span><i class="trust-icon trust-teal" aria-hidden="true">↗</i> Theo dõi tiến bộ thật</span>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-label="Bản xem trước bảng tiến độ học tập">
+        <div class="visual-glow visual-glow-a"></div>
+        <div class="visual-glow visual-glow-b"></div>
+        <div class="dashboard-preview">
+          <div class="preview-topbar">
+            <div class="preview-brand"><span class="preview-logo">S</span><span><b>StudySpace</b><small>Không gian học tập của bạn</small></span></div>
+            <div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+          </div>
+          <div class="preview-content">
+            <div class="preview-heading"><div><small>THỨ TƯ, 15 THÁNG 10</small><h2>Chào buổi sáng, Minh <span>✦</span></h2></div><span class="streak-chip">✦ 5 ngày học</span></div>
+            <div class="metric-grid">
+              <article class="metric-card"><span class="metric-icon icon-indigo">▤</span><small>BÀI ĐÃ HỌC</small><strong>12 <em>bài</em></strong><span class="metric-note">↑ 3 bài tuần này</span></article>
+              <article class="metric-card"><span class="metric-icon icon-teal">✓</span><small>QUIZ ĐÃ NỘP</small><strong>08 <em>lượt</em></strong><span class="metric-note">↑ Tiến bộ đều</span></article>
+            </div>
+            <div class="chart-card">
+              <div class="chart-title"><span><b>Thời lượng học</b><small>Hoạt động trong tuần</small></span><span class="chart-range">7 ngày⌄</span></div>
+              <div class="chart-area" role="img" aria-label="Biểu đồ cột thời lượng học trong tuần">
+                <div class="chart-grid"><i></i><i></i><i></i></div>
+                <div class="bar-set"><span style="--bar:32%"><i></i><small>T2</small></span><span style="--bar:52%"><i></i><small>T3</small></span><span style="--bar:42%"><i></i><small>T4</small></span><span style="--bar:68%"><i></i><small>T5</small></span><span style="--bar:56%"><i></i><small>T6</small></span><span style="--bar:82%"><i></i><small>T7</small></span><span class="bar-current" style="--bar:96%"><i></i><small>CN</small></span></div>
+              </div>
+              <div class="chart-legend"><span><i></i> Thời gian học</span><b>+18% so với tuần trước</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="goal-float"><span class="goal-check" aria-hidden="true">✓</span><span><b>Đạt mục tiêu!</b><small>Bạn đã học đủ 5 ngày liên tiếp</small></span></div>
+        <div class="ai-float"><span class="ai-spark" aria-hidden="true">✦</span><span><b>Gợi ý ôn tập</b><small>Chuẩn hóa dữ liệu · 15 phút</small></span><span class="ai-arrow" aria-hidden="true">→</span></div>
+      </div>
+    </section>
+
+    <section class="proof-band" aria-label="Các nguyên tắc của StudySpace">
+      <div class="section-wrap proof-inner"><span class="proof-label">HỌC TẬP CÓ ĐỊNH HƯỚNG</span><span><i>01</i> Học theo lộ trình</span><span><i>02</i> Kiểm tra để hiểu</span><span><i>03</i> Tiến bộ nhìn thấy được</span></div>
+    </section>
+
+    <section class="features section-wrap" id="features">
+      <div class="section-heading"><span class="section-kicker">MỌI THỨ TRONG MỘT KHÔNG GIAN</span><h2>Học có kế hoạch.<br><span class="text-gradient">Ôn tập có trọng tâm.</span></h2><p>Từ nội dung bài học đến kết quả quiz, mỗi bước đều kết nối thành bức tranh tiến độ của riêng bạn.</p></div>
+      <div class="feature-grid">
+        <article class="feature-card feature-main"><span class="feature-icon feature-icon-indigo" aria-hidden="true">▤</span><span class="feature-index">01 / LỘ TRÌNH</span><h3>Nội dung rõ ràng, học đến đâu chắc đến đó</h3><p>Môn học được chia thành chương và bài. Theo dõi tiến trình, mở lại tài liệu và tiếp tục đúng nơi bạn đã dừng.</p><a href="#how-it-works">Tìm hiểu cách học <span aria-hidden="true">→</span></a><div class="mini-lessons" aria-hidden="true"><span><i>✓</i> Mô hình dữ liệu quan hệ <b>Đã học</b></span><span><i>✓</i> Chuẩn hóa cơ sở dữ liệu <b>Đang học</b></span><span><i>3</i> Truy vấn SQL nâng cao <b>Tiếp theo</b></span></div></article>
+        <article class="feature-card"><span class="feature-icon feature-icon-teal" aria-hidden="true">✦</span><span class="feature-index">02 / CỦNG CỐ</span><h3>Quiz giúp bạn biết mình thực sự hiểu gì</h3><p>Làm bài, xem kết quả và nhận diện chủ đề cần dành thêm thời gian ôn luyện.</p><div class="score-preview"><span>Điểm quiz gần đây</span><strong>82<small>/100</small></strong><div><i style="width:82%"></i></div><b>Khá · tiếp tục phát huy</b></div></article>
+        <article class="feature-card"><span class="feature-icon feature-icon-blue" aria-hidden="true">◷</span><span class="feature-index">03 / TẬP TRUNG</span><h3>Chia buổi học thành nhịp tập trung vừa sức</h3><p>Lập kế hoạch, tập trung theo phiên và xem lại thời gian học của bạn theo tuần.</p><div class="focus-preview"><div class="focus-ring"><span>25<small>:00</small></span></div><span><b>Phiên tập trung</b><small>Một bước nhỏ, một tiến bộ thật.</small></span></div></article>
+      </div>
+    </section>
+
+    <section class="how-section" id="how-it-works">
+      <div class="section-wrap how-inner">
+        <div class="how-copy"><span class="section-kicker">BẮT ĐẦU THẬT ĐƠN GIẢN</span><h2>Mỗi ngày tiến thêm<br><span class="text-gradient">một bước vững vàng.</span></h2><p>Không cần thay đổi cách học trong một đêm. StudySpace giúp bạn biến mục tiêu lớn thành những việc học nhỏ, cụ thể và có thể hoàn thành.</p><a class="text-link" href="/login.html">Vào không gian học tập <span aria-hidden="true">→</span></a></div>
+        <ol class="steps-list"><li><span>01</span><div><b>Chọn môn học</b><p>Tìm nội dung đang học hoặc tham gia lớp của bạn.</p></div><i aria-hidden="true">↗</i></li><li><span>02</span><div><b>Học và tự kiểm tra</b><p>Hoàn thành bài học, sau đó làm quiz để củng cố.</p></div><i aria-hidden="true">✦</i></li><li><span>03</span><div><b>Ôn đúng phần cần thiết</b><p>Xem tiến độ và quay lại các chương còn chưa vững.</p></div><i aria-hidden="true">✓</i></li></ol>
+      </div>
+    </section>
+
+    <section class="guide-strip section-wrap" id="guide"><span class="guide-symbol" aria-hidden="true">?</span><div><b>Cần làm quen với StudySpace?</b><p>Xem hướng dẫn để bắt đầu học, làm quiz và theo dõi tiến độ.</p></div><a class="button button-outline" href="/login.html">Mở không gian học <span aria-hidden="true">→</span></a></section>
+
+    <section class="closing-wrap section-wrap"><div class="closing-cta"><div class="closing-glow closing-glow-one"></div><div class="closing-glow closing-glow-two"></div><div class="closing-content"><span class="closing-badge"><i></i> BẮT ĐẦU TỪ MỤC TIÊU CỦA BẠN</span><h2>Học đúng trọng tâm.<br><span>Tiến bộ theo cách của bạn.</span></h2><p>Chọn một môn học, bắt đầu một bài nhỏ và để dữ liệu chỉ cho bạn bước tiếp theo.</p><a class="button button-light" href="/login.html">Khám phá StudySpace <span aria-hidden="true">→</span></a></div><div class="closing-mark" aria-hidden="true"><span>Study</span><b>Space</b><i>✦</i></div></div></section>
+  </main>
+
+  <footer class="site-footer"><div class="section-wrap footer-inner"><a class="brand" href="#home"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m2.5 9.2 9.5-5 9.5 5-9.5 5-9.5-5Z"/><path d="M6.5 11.4v4.2c3.4 2.4 7.6 2.4 11 0v-4.2M21.5 9.3v5.1"/></svg></span><span>StudySpace</span></a><p>Học theo mục tiêu. Ôn đúng phần còn yếu.</p><div class="footer-links"><a href="#features">Tính năng</a><a href="#how-it-works">Cách hoạt động</a><a href="/login.html">Đăng nhập</a></div><small>© 2026 StudySpace · Không gian học tập của bạn</small></div></footer>
+</body>
+</html>

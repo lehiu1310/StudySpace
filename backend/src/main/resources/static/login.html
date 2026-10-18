@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#fafbff"><title>Đăng nhập · StudySpace</title>
+<link rel="stylesheet" href="landing.css"><link rel="stylesheet" href="login.css">
+<script defer src="login.js?v=2"></script>
+</head>
+<body class="account-page">
+<header class="account-topbar"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m2.5 9.2 9.5-5 9.5 5-9.5 5-9.5-5Z"/><path d="M6.5 11.4v4.2c3.4 2.4 7.6 2.4 11 0v-4.2M21.5 9.3v5.1"/></svg></span><span>StudySpace</span></a><a class="back-link" href="/">← Trang chủ</a></header>
+<main class="account-layout">
+  <section class="account-form-panel" aria-labelledby="form-title">
+    <div class="form-inner">
+      <a class="brand form-brand" href="/" aria-label="StudySpace"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m2.5 9.2 9.5-5 9.5 5-9.5 5-9.5-5Z"/><path d="M6.5 11.4v4.2c3.4 2.4 7.6 2.4 11 0v-4.2M21.5 9.3v5.1"/></svg></span></a>
+      <p class="form-kicker">KHÔNG GIAN HỌC TẬP CỦA BẠN</p><h1 id="form-title">Chào mừng <span class="text-gradient">trở lại.</span></h1>
+      <p class="form-intro" id="form-intro">Đăng nhập để tiếp tục bài học và theo dõi tiến độ của bạn.</p>
+      <form id="account-form" method="post" action="/login.html" novalidate>
+        <label for="username">Tên đăng nhập</label><div class="input-wrap"><span aria-hidden="true">◎</span><input id="username" name="username" autocomplete="username" required minlength="3" maxlength="80" placeholder="Ví dụ: linhnguyen"></div>
+        <label for="password">Mật khẩu</label><div class="input-wrap"><span aria-hidden="true">◇</span><input id="password" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="72" placeholder="Ít nhất 8 ký tự"><button class="password-toggle" id="password-toggle" type="button" aria-label="Hiện mật khẩu">Hiện</button></div>
+        <p id="form-error" class="form-error" role="alert" hidden></p>
+        <button class="submit-button" id="submit-button" type="submit"><span class="submit-label">Đăng nhập</span><span class="spinner" aria-hidden="true"></span><span class="submit-arrow" aria-hidden="true">→</span></button>
+      </form>
+      <p class="switch-mode"><span id="switch-copy">Chưa có tài khoản?</span> <button type="button" id="switch-mode">Đăng ký học viên</button></p>
+      <p class="staff-link" id="staff-link"><span>Giảng viên hoặc quản trị viên?</span> <a href="/login.html?staff=1">Đăng nhập tại đây</a></p>
+      <section class="success-panel" id="success-panel" hidden aria-live="polite"><span class="success-mark">✓</span><h2>Đăng nhập thành công</h2><p>Bạn có thể tiếp tục học tập trên ứng dụng StudySpace. Dữ liệu học tập được lưu theo tài khoản này.</p><button id="return-home" type="button" class="secondary-button">Về trang chủ</button></section>
+    </div>
+  </section>
+  <aside class="account-aside">
+    <div class="aside-orbit orbit-one"></div><div class="aside-orbit orbit-two"></div>
+    <div class="aside-content">
+      <span class="aside-symbol" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="21" stroke="currentColor" stroke-width="2"/><path d="m15 25 6 6 13-15" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <p class="aside-kicker">HỌC CÓ ĐỊNH HƯỚNG</p><h2>Tiến bộ bắt đầu<br>từ <span class="text-gradient">đúng trọng tâm.</span></h2><p class="aside-description">Mỗi phiên học đều giúp bạn hiểu rõ mình đang ở đâu và nên làm gì tiếp theo.</p>
+      <div class="benefit-list"><article><span>✓</span><div><b>Học theo lộ trình</b><small>Nội dung được chia thành từng bước rõ ràng</small></div></article><article><span>✓</span><div><b>Theo dõi tiến độ</b><small>Nhìn thấy kết quả qua từng bài học và quiz</small></div></article><article><span>✓</span><div><b>Ôn tập cá nhân hóa</b><small>Tập trung vào chương bạn cần củng cố</small></div></article></div>
+      <div class="aside-foot"><span class="foot-dots"><i></i><i></i><i></i></span>Không gian học tập dành cho bạn</div>
+    </div>
+  </aside>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body></html>

@@ -1,0 +1,17 @@
+<resources>
+    <string name="onboarding_title">Thiết lập StudySpace</string>
+    <string name="onboarding_step">Bước %1$d trên 3</string>
+    <string name="onboarding_subject_title">Bạn đang quan tâm môn nào?</string>
+    <string name="onboarding_subject_body">Chọn một môn để StudySpace chuẩn bị bài đầu tiên phù hợp.</string>
+    <string name="onboarding_courses_loading">Đang tải môn học đã xuất bản…</string>
+    <string name="onboarding_daily_title">Đặt mục tiêu học mỗi ngày</string>
+    <string name="onboarding_daily_value">%1$d phút mỗi ngày</string>
+    <string name="onboarding_daily_hint">Bạn có thể thay đổi mục tiêu này bất cứ lúc nào.</string>
+    <string name="onboarding_first_lesson_title">Chọn bài đầu tiên</string>
+    <string name="onboarding_first_lesson_body">Chọn một bài trong %1$s. Bài sẽ được thêm vào Kế hoạch của bạn.</string>
+    <string name="onboarding_no_lessons">Môn này chưa có bài học đang mở. Bạn có thể bỏ qua bước này.</string>
+    <string name="onboarding_skip">Bỏ qua</string>
+    <string name="onboarding_back">Quay lại</string>
+    <string name="onboarding_next">Tiếp theo</string>
+    <string name="onboarding_finish">Bắt đầu học</string>
+</resources>

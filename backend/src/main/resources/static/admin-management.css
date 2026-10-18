@@ -1,0 +1,7 @@
+.toolbar{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:12px 0}
+.toolbar label{flex:1;min-width:180px;margin:0}
+.toolbar>span{padding:10px 0;color:var(--muted);font-size:13px}
+.muted{color:var(--muted)}
+#workspace>nav button[aria-current=page]{background:#eeedff;color:var(--primary);box-shadow:none;transform:none}
+#audit-list table{min-width:720px}
+@media(max-width:760px){.toolbar{align-items:stretch}}
