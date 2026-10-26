@@ -33,12 +33,35 @@ $secureAdmin = Read-Host 'New admin password (minimum 12 characters)' -AsSecureS
 $env:STUDYSPACE_ADMIN_PASSWORD = [Net.NetworkCredential]::new('', $secureAdmin).Password
 $secureDemo = Read-Host 'Demo cohort password (minimum 12 characters)' -AsSecureString
 $env:STUDYSPACE_DEMO_PASSWORD = [Net.NetworkCredential]::new('', $secureDemo).Password
-# Tùy chọn: nhập trong phiên terminal này; không ghi vào file được commit.
-$secureGemini = Read-Host 'Gemini API key (optional; press Enter to skip)' -AsSecureString
-$env:GEMINI_API_KEY = [Net.NetworkCredential]::new('', $secureGemini).Password
+. .\backend\load-gemini-config.ps1
+if ([string]::IsNullOrWhiteSpace($env:GEMINI_API_KEY)) { Write-Output 'Gemini: chưa cấu hình' }
+else { Write-Output "Gemini: đã cấu hình (nguồn: $env:STUDYSPACE_GEMINI_KEY_SOURCE)" }
 .\gradlew.bat -p backend installDist --no-daemon
 & '.\backend\build\install\studyspace-server\bin\studyspace-server.bat' '--studyspace.seed=true' '--studyspace.seed.rich-demo=true'
 ```
+
+Gemini key là tùy chọn. Cách ổn định cho các lần chạy sau là sao chép
+`.env.local.example` thành `.env.local`, rồi nhập key vào dòng `GEMINI_API_KEY=`.
+`.env.local` đã bị `.gitignore` loại khỏi Git. Không gửi file này, không chụp
+màn hình có key và không đặt key trong APK. Hoặc nhập kín trong PowerShell:
+
+```powershell
+$secureGemini = Read-Host 'Gemini API key (Enter để bỏ qua)' -AsSecureString
+if ($secureGemini.Length -gt 0) { $env:GEMINI_API_KEY = [Net.NetworkCredential]::new('', $secureGemini).Password }
+```
+
+Launcher local/portable ưu tiên biến môi trường `GEMINI_API_KEY`, sau đó file
+gốc `.env.local`, rồi mới dùng biến tương thích cũ `STUDYSPACE_GEMINI_API_KEY`;
+nếu không có cấu hình nào thì backend dùng gợi ý offline. Launcher
+in `Gemini: đã cấu hình (nguồn: ...)` hoặc `Gemini: chưa cấu hình`, không in key.
+Backend cũng ghi đúng một dòng nguồn lúc khởi động. Nếu đặt key qua biến môi
+trường, chạy launcher trong chính cửa sổ PowerShell đó. Sau khi đổi key, dừng
+và khởi động lại backend.
+
+Sau khi đăng nhập admin, gọi `GET /api/ai/health`. Endpoint probe Gemini và chỉ
+trả `configured`, `status`, `message`, không trả key. Trạng thái gồm
+`not_configured`, `invalid_key`, `quota_limited`, `available`, `project_denied`,
+`access_denied` và `unavailable`. Health probe có gọi Gemini nên tiêu thụ một lượt nhỏ.
 
 `--studyspace.seed=true` nạp nội dung học mẫu và tài khoản admin cục bộ nếu chưa có; `--studyspace.seed.rich-demo=true` tạo cohort dùng cho demo. Chỉ chạy một backend instance trên cùng DB. Seed có tính lặp an toàn; không bật seed demo trên production. Với DB cá nhân không muốn có cohort mẫu, bỏ hai tham số seed. Sau khi dừng backend, xóa secret khỏi terminal bằng `Remove-Item Env:STUDYSPACE_DEMO_PASSWORD, Env:STUDYSPACE_ADMIN_PASSWORD, Env:GEMINI_API_KEY`.
 
@@ -62,7 +85,7 @@ pwsh -File backend/start-portable.ps1 -Seed -RichDemo
 Remove-Item Env:STUDYSPACE_DEMO_PASSWORD
 ```
 
-Lệnh portable chỉ dành cho môi trường đã có `backend/portable/` và file bí mật DPAPI local. Trên máy mới, dùng PostgreSQL cài đặt và lệnh `studyspace-server.bat` ở mục trên. Tên demo và trạng thái dữ liệu được liệt kê trong [DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md); bí mật không nằm trong repo.
+Lệnh portable chỉ dành cho môi trường đã có `backend/portable/` và file bí mật DPAPI local. Trên máy mới, dùng PostgreSQL cài đặt và lệnh `studyspace-server.bat` ở mục trên. Tên demo và trạng thái dữ liệu được liệt kê trong [DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md); bí mật không nằm trong repo. Launcher portable cũng đọc `.env.local` từ thư mục gốc repo.
 
 ## Kiểm thử
 

@@ -1,6 +1,6 @@
 # StudySpace — Hồ sơ mô tả hệ thống
 
-Cập nhật: 2026-10-19. Hồ sơ được đối chiếu với mã nguồn và PostgreSQL local;
+Cập nhật: 2026-10-22. Hồ sơ được đối chiếu với mã nguồn và PostgreSQL local;
 ảnh cổng giảng viên được chụp lại bằng Playwright ngày 2026-10-18.
 
 ## Mục lục
@@ -33,7 +33,8 @@ giao diện thật đã lưu trong `backend/docs/test-evidence/phase4-quiz-resul
 -  18 bảng, 102 cột và 26 khóa ngoại.
 - Danh mục học viên có 9 khóa xuất bản (ID 1, 2, 3, 4, 22, 23, 42, 43, 44);
   các khóa 18, 19, 21 đang ẩn và vẫn được giữ trong database.
-- Bộ demo giảng viên có 3 khóa, 18 bài, 31 câu hỏi, 2 lớp và 28 học viên/lớp;
+- Bộ demo giảng viên có 3 khóa, 18 bài, 35 câu hỏi (30 đang hoạt động), 2 lớp
+  và 28 học viên/lớp;
   database local có 41 tài khoản (1 ADMIN, 3 TEACHER, 37 STUDENT), trong đó
   32 tên tài khoản thuộc namespace demo.
 - Hồ sơ nộp không chứa mật khẩu demo. Bí mật demo chỉ được lưu trong file local

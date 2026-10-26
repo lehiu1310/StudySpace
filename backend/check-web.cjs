@@ -4,7 +4,7 @@ const path=require('path');
  const browser=await chromium.launch({headless:true,channel:'msedge'});
  const page=await browser.newPage({viewport:{width:1366,height:900}});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
- await page.goto('http://127.0.0.1:8080');
+ await page.goto('http://127.0.0.1:8080/admin.html');
  await page.getByLabel('Tên đăng nhập',{exact:true}).fill('admin');
  await page.getByLabel('Mật khẩu',{exact:true}).fill(process.env.STUDYSPACE_ADMIN_PASSWORD);
  await page.getByRole('button',{name:'Đăng nhập',exact:true}).click();

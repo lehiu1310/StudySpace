@@ -1,13 +1,6 @@
 param([switch]$Seed,[switch]$UseExistingDatabase,[switch]$RichDemo)
 $ErrorActionPreference = 'Stop'
-$envFile = Join-Path (Split-Path -Parent $PSScriptRoot) '.env'
-if ([string]::IsNullOrWhiteSpace($env:GEMINI_API_KEY) -and ![string]::IsNullOrWhiteSpace($env:STUDYSPACE_GEMINI_API_KEY)) {
-    $env:GEMINI_API_KEY = $env:STUDYSPACE_GEMINI_API_KEY
-}
-if ([string]::IsNullOrWhiteSpace($env:GEMINI_API_KEY) -and (Test-Path -LiteralPath $envFile)) {
-    $keyLine = Get-Content -LiteralPath $envFile | Where-Object { $_ -match '^\s*GEMINI_API_KEY\s*=' } | Select-Object -Last 1
-    if ($keyLine -match '^\s*GEMINI_API_KEY\s*=\s*(.*)\s*$') { $env:GEMINI_API_KEY = $Matches[1].Trim().Trim('"').Trim("'") }
-}
+$geminiSource = . (Join-Path $PSScriptRoot 'load-gemini-config.ps1')
 $env:GRADLE_USER_HOME = 'D:\DevData\Gradle'
 $project = Split-Path -Parent $PSScriptRoot
 $secretFile = Join-Path $PSScriptRoot '.local-secrets.xml'
@@ -35,11 +28,12 @@ if ($RichDemo) {
 if (!$UseExistingDatabase) {
     docker compose -f (Join-Path $PSScriptRoot 'compose.yaml') up -d --wait
     if ($LASTEXITCODE -ne 0) { throw 'PostgreSQL failed to start. Check Docker Desktop.' }
-} elseif ([string]::IsNullOrWhiteSpace($env:DB_URL)) {
-    $env:DB_URL = 'jdbc:postgresql://127.0.0.1:55432/studyspace'
+}
+if ([string]::IsNullOrWhiteSpace($env:DB_URL)) {
+    $env:DB_URL = 'jdbc:postgresql://127.0.0.1:5432/studyspace'
 }
 if (!$env:JAVA_HOME) { $env:JAVA_HOME = 'D:\adr studio\jbr' }
-& (Join-Path $project 'gradlew.bat') -p $PSScriptRoot installDist --console=plain
+& (Join-Path $project 'gradlew.bat') -p $PSScriptRoot installDist --no-daemon --max-workers=2 --console=plain
 if ($LASTEXITCODE -ne 0) { throw 'Server build failed.' }
 $java = Join-Path $env:JAVA_HOME 'bin\java.exe'
 $lib = Join-Path $PSScriptRoot 'build\install\studyspace-server\lib\*'
@@ -49,5 +43,7 @@ $serverArguments = @('-cp', ('"' + $lib + '"'), 'com.studyspace.server.StudySpac
 if ($RichDemo) { $serverArguments += '--studyspace.seed.rich-demo=true' }
 $process = Start-Process -FilePath $java -ArgumentList $serverArguments -WorkingDirectory $PSScriptRoot -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $PSScriptRoot 'server.log') -RedirectStandardError (Join-Path $PSScriptRoot 'server-error.log')
 $process.Id | Set-Content -LiteralPath (Join-Path $PSScriptRoot '.server.pid')
+if ([string]::IsNullOrWhiteSpace($env:GEMINI_API_KEY)) { Write-Output 'Gemini: chưa cấu hình' }
+else { Write-Output "Gemini: đã cấu hình (nguồn: $geminiSource)" }
 Write-Output 'StudySpace server starting at http://localhost:8080. See server.log.'
 Write-Output 'Admin credentials are stored using Windows DPAPI in .local-secrets.xml.'

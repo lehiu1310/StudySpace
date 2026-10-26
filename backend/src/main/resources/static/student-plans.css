@@ -1,0 +1,47 @@
+.plans-page-heading{display:grid;grid-template-columns:1fr;gap:18px;margin-bottom:20px}
+.plans-page-heading h1{margin:7px 0;font:700 30px/1.2 var(--ss-font-display);color:var(--workspace-ink)}
+.plans-page-heading p,.plans-weekly-intro p,.plan-create-panel>header p{margin:0;color:var(--workspace-muted);font-size:13px;line-height:1.6}
+.plans-page-heading .back-course{justify-self:start}
+.plans-weekly-panel,.plans-list-panel,.plan-create-panel{border:1px solid var(--workspace-line);border-radius:16px;background:var(--workspace-paper);box-shadow:var(--workspace-shadow)}
+.plans-weekly-panel{display:grid;grid-template-columns:minmax(180px,.9fr) minmax(300px,1.5fr);gap:24px;align-items:center;padding:24px;margin-bottom:20px}
+.plans-weekly-intro h2,.plans-section-heading h2,.plan-create-panel h2{margin:7px 0;font:700 20px/1.25 var(--ss-font-display);color:var(--workspace-ink)}
+.plans-weekly-stats{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.plans-weekly-stats article{min-width:0;padding:15px;border:1px solid var(--workspace-line);border-radius:12px;background:var(--workspace-wash)}
+.plans-weekly-stats article>span{display:block;color:var(--workspace-muted);font-size:9px;font-weight:700;letter-spacing:.08em}
+.plans-weekly-stats strong{display:block;margin:8px 0 10px;color:var(--workspace-ink);font:700 19px/1.25 var(--ss-font-display)}
+.plans-progress-track{height:7px;overflow:hidden;border-radius:99px;background:#e7eaf3}
+.plans-progress-track i{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--workspace-indigo),var(--workspace-mint));transition:width .25s ease}
+.weekly-goal-form{grid-column:1/-1;display:flex;align-items:end;gap:12px;padding-top:16px;border-top:1px solid var(--workspace-line)}
+.weekly-goal-form label,.plan-form label{display:grid;gap:7px;color:#4d5a71;font-size:11px;font-weight:650}
+.weekly-goal-form input,.plan-form input,.plan-form textarea{width:100%;min-height:42px;padding:10px 12px;border:1px solid var(--workspace-line);border-radius:10px;background:var(--workspace-paper);color:var(--workspace-ink);font-size:12px}
+.weekly-goal-form label{width:150px}
+.weekly-goal-form button,.plan-form button{min-height:44px}
+.weekly-goal-form .secondary-action{padding:0 16px;border:1px solid #dfe3f0;border-radius:10px;background:#f4f3ff;color:var(--workspace-indigo);font:650 11px var(--ss-font-sans);cursor:pointer;transition:background .18s,border-color .18s,transform .18s}
+.weekly-goal-form .secondary-action:hover{background:#ecebff;border-color:#c9c7f7}
+.plans-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.75fr);gap:20px;align-items:start}
+.plans-list-panel,.plan-create-panel{padding:22px}
+.plans-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.plans-section-heading h2{margin-bottom:0}
+.plans-list{display:grid;gap:11px}
+.plan-card{display:flex;justify-content:space-between;gap:16px;padding:16px;border:1px solid var(--workspace-line);border-radius:12px;background:#fff;transition:border-color .18s,box-shadow .18s,transform .18s}
+.plan-card:hover{transform:translateY(-1px);border-color:#c9cdf1;box-shadow:0 8px 20px rgba(38,48,91,.07)}
+.plan-card.is-complete{background:#f8fcfb}
+.plan-card-main{min-width:0;flex:1}
+.plan-card-title{display:flex;align-items:center;flex-wrap:wrap;gap:9px}
+.plan-card-title h3{margin:0;color:var(--workspace-ink);font:650 14px/1.4 var(--ss-font-display);overflow-wrap:anywhere}
+.plan-status{padding:5px 8px;border-radius:99px;background:#f0f2f7;color:#657087;font-size:9px;font-weight:700;white-space:nowrap}
+.plan-status.is-complete{background:#e7f8f3;color:#07816f}.plan-status.is-overdue{background:#fff0ed;color:#bd4b38}.plan-status.is-upcoming{background:#eff0ff;color:#4f46c8}
+.plan-card-main>p{margin:8px 0;color:var(--workspace-muted);font-size:11px;line-height:1.5;overflow-wrap:anywhere}
+.plan-card-meta{display:flex;flex-wrap:wrap;gap:8px 14px;color:#64718a;font-size:10px}
+.plan-card-actions{display:flex;flex-direction:column;justify-content:center;gap:7px;flex:none}
+.plan-card-actions button{min-height:44px;padding:0 11px;border:1px solid var(--workspace-line);border-radius:9px;background:#fff;color:var(--workspace-indigo);font-size:10px;font-weight:650;cursor:pointer}
+.plan-card-actions button:hover{background:#f4f3ff;border-color:#ceccfa}
+.plan-card-actions .plan-delete-button{color:#a64d4d}
+.plan-create-panel>header{margin-bottom:17px}
+.plan-form{display:grid;gap:13px}
+.plan-form textarea{resize:vertical;min-height:80px}
+.plan-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.plan-form .button-primary{width:100%;justify-content:center}
+.plans-view .student-data-error{grid-column:1/-1}
+@media(max-width:760px){.plans-weekly-panel{grid-template-columns:1fr;padding:18px}.plans-layout{grid-template-columns:1fr}.plans-list-panel,.plan-create-panel{padding:17px}.weekly-goal-form{grid-column:auto;flex-wrap:wrap}.weekly-goal-form label{flex:1 1 120px}.weekly-goal-form button{flex:1 1 100%}.plans-page-heading h1{font-size:25px}}
+@media(max-width:420px){.plans-weekly-stats{gap:8px}.plans-weekly-stats article{padding:12px}.plans-weekly-stats strong{font-size:16px}.plan-card{display:grid;gap:12px;padding:13px}.plan-card-actions{flex-direction:row;justify-content:flex-start}.plan-card-actions button{flex:1}.plan-form-row{grid-template-columns:1fr}.plans-page-heading p{font-size:12px}}

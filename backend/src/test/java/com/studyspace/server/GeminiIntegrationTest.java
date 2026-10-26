@@ -42,7 +42,10 @@ class GeminiIntegrationTest {
             .andExpect(status().isUnauthorized());
         for (int i = 0; i < 20; i++) {
             mvc.perform(post("/api/ai/challenge").header("Authorization", token)
-                .contentType(MediaType.APPLICATION_JSON).content(payload)).andExpect(status().isServiceUnavailable());
+                .contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.provider").value("offline"))
+                .andExpect(jsonPath("$.microPlan.length()").value(3));
         }
         mvc.perform(post("/api/ai/challenge").header("Authorization", token)
             .contentType(MediaType.APPLICATION_JSON).content(payload)).andExpect(status().isTooManyRequests());
@@ -148,6 +151,23 @@ class GeminiIntegrationTest {
             .andReturn().getResponse().getContentAsString();
         org.junit.jupiter.api.Assertions.assertTrue(json.readTree(focusedResponse).path("questions").get(0)
             .path("question").asText().contains("INNER JOIN"));
+
+        String focusedFiveDraft = "{\"chapterId\":" + chapterId + ",\"questionCount\":5,\"difficulty\":2,\"topic\":\"INNER JOIN\"}";
+        String focusedFiveResponse = mvc.perform(post("/api/ai/teacher/question-drafts").header("Authorization", teacherToken)
+                .contentType(MediaType.APPLICATION_JSON).content(focusedFiveDraft))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.provider").value("offline"))
+            .andExpect(jsonPath("$.questions.length()").value(5))
+            .andReturn().getResponse().getContentAsString();
+        var generated = json.readTree(focusedFiveResponse).path("questions");
+        assertEquals(5, java.util.stream.StreamSupport.stream(generated.spliterator(), false)
+            .map(item -> item.path("question").asText().replaceAll("\\s+", " ").toLowerCase(java.util.Locale.ROOT))
+            .distinct().count());
+        for (var item : generated) {
+            assertEquals(4, item.path("options").size());
+            org.junit.jupiter.api.Assertions.assertTrue(item.path("correctOption").intValue() >= 0 && item.path("correctOption").intValue() < 4);
+            org.junit.jupiter.api.Assertions.assertFalse(item.path("explanation").asText().isBlank());
+        }
     }
 
     @Test

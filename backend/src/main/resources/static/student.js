@@ -1,7 +1,7 @@
 'use strict';
-const $=id=>document.getElementById(id);let token=sessionStorage.getItem('studyspace_student_session')||'',courses=[],progress={},studentClasses=[],activeCourse=null,activeAttempt=null,studentDataLoading=false,progressLoadError=null,quizTimer=null,quizSaveTimer=null,quizMarked=new Set(),quizWarned=false,currentAccount=null,selectedClassId=null,nextLesson=null;const discussionRequests=new Map();
+const $=id=>document.getElementById(id);let token=sessionStorage.getItem('studyspace_student_session')||'',courses=[],progress={},studentClasses=[],activeCourse=null,activeAttempt=null,studentDataLoading=false,progressLoadError=null,studyLoadError=null,quizTimer=null,quizSaveTimer=null,quizMarked=new Set(),quizWarned=false,currentAccount=null,selectedClassId=null,nextLesson=null,nextLessonLoading=false;const discussionRequests=new Map();
 function toast(message){const el=$('student-toast');el.textContent=message;el.classList.add('visible');setTimeout(()=>el.classList.remove('visible'),3200);}
-async function api(path,method='GET',body,options={}){const timeout=AbortSignal.timeout(12000),signal=options.signal?AbortSignal.any([options.signal,timeout]):timeout;const response=await fetch('/api/'+path,{method,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),signal});const raw=await response.text();let data={};try{data=raw?JSON.parse(raw):{};}catch{}if(!response.ok){if(response.status===401){sessionStorage.removeItem('studyspace_student_session');location.replace('/login.html');}throw Error(data.error||'Không thể tải dữ liệu. Vui lòng thử lại.');}return data;}
+async function api(path,method='GET',body,options={}){const timeout=AbortSignal.timeout(path.startsWith('ai/')?35000:12000),signal=options.signal?AbortSignal.any([options.signal,timeout]):timeout;const response=await fetch('/api/'+path,{method,headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body),signal});const raw=await response.text();let data={};try{data=raw?JSON.parse(raw):{};}catch{}if(!response.ok){if(response.status===401){sessionStorage.removeItem('studyspace_student_session');location.replace('/login.html');}throw Error(data.error||'Không thể tải dữ liệu. Vui lòng thử lại.');}return data;}
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function empty(title,description,actionLabel='',action=''){return `<div class="empty-box"><span class="student-empty-icon" aria-hidden="true">✦</span><b>${escapeHtml(title)}</b><span class="student-empty-copy">${escapeHtml(description)}</span>${action?`<button class="student-empty-action" type="button" data-empty-action="${action}">${escapeHtml(actionLabel)}</button>`:''}</div>`;}
 function aiProviderLabel(provider){return provider==='gemini'?'AI trực tiếp · Gemini':'Gợi ý offline';}
@@ -60,7 +60,9 @@ $('class-join-form').onsubmit=async event=>{event.preventDefault();const input=$
 $('back-courses').onclick=showHome;$('home-button').onclick=showHome;$('refresh-button').onclick=load;$('logout').onclick=async()=>{try{await api('auth/logout','POST',{});}catch{}sessionStorage.removeItem('studyspace_student_session');sessionStorage.removeItem('studyspace_welcome');if(sessionStorage.getItem('studyspace_active_role')==='STUDENT')sessionStorage.removeItem('studyspace_active_role');location.assign('/login.html');};
 setInterval(()=>{if(document.visibilityState==='visible'&&studentScreen==='classes')loadClassDiscussions();},5000);
 async function startAiReview(){const button=$('ai-review-button');button.disabled=true;button.textContent='Đang chuẩn bị bài ôn…';try{activeAttempt=await api('ai/review-quiz','POST');renderQuiz(false);}catch(error){toast(error.message==='Hãy hoàn thành ít nhất một quiz để hệ thống xác định chương cần ôn.'?error.message:'Chưa thể tạo bài ôn lúc này. Hãy thử lại.');}finally{button.disabled=false;button.textContent='✦ Ôn tập cá nhân hóa';}}
-async function askAi(){const input=$('ai-question'),button=$('ai-ask-button'),answer=$('ai-answer'),question=input.value.trim();if(!question){input.focus();return;}let retry=$('ai-retry-button');if(!retry){retry=document.createElement('button');retry.id='ai-retry-button';retry.className='ai-explain-button ai-retry-button';retry.type='button';retry.textContent='Thử lại';answer.after(retry);retry.onclick=askAi;}retry.hidden=true;button.disabled=true;answer.textContent='Gia sư đang xem tiến độ học của bạn…';try{const result=await api('ai/chat','POST',{question,lessonContext:activeLesson?.content||''});answer.innerHTML=`<span class="ai-provider-label">${aiProviderLabel(result.provider)}</span><br>${escapeHtml(result.answer)}`;retry.hidden=result.provider!=='offline';retry.textContent='Thử lại với AI';if(result.provider!=='offline')input.value='';}catch{answer.textContent='AI đang tạm thời không khả dụng. Bạn vẫn có thể xem gợi ý dựa trên tiến độ học đã lưu.';retry.hidden=false;retry.textContent='Thử lại';}finally{button.disabled=false;}}
+async function sendAiQuestion(inputId,buttonId,answerId,lessonContext=''){const input=$(inputId),button=$(buttonId),answer=$(answerId),question=input.value.trim();if(!question){input.focus();return;}let retry=$(answerId+'-retry-button');if(!retry){retry=document.createElement('button');retry.id=answerId+'-retry-button';retry.className='ai-explain-button ai-retry-button';retry.type='button';retry.textContent='Thử lại';answer.after(retry);retry.onclick=()=>sendAiQuestion(inputId,buttonId,answerId,lessonContext);}retry.hidden=true;button.disabled=true;answer.textContent='Gia sư đang xem nội dung học tập…';try{const result=await api('ai/chat','POST',{question,lessonContext});answer.innerHTML=`<span class="ai-provider-label">${aiProviderLabel(result.provider)}</span><br>${escapeHtml(result.answer)}`;retry.hidden=result.provider!=='offline';retry.textContent='Thử lại với AI';if(result.provider!=='offline')input.value='';}catch{answer.textContent='AI đang tạm thời không khả dụng. Bạn vẫn có thể xem gợi ý offline dựa trên dữ liệu đã lưu.';retry.hidden=false;retry.textContent='Thử lại';}finally{button.disabled=false;}}
+async function askAi(){return sendAiQuestion('ai-question','ai-ask-button','ai-answer','');}
+async function askLessonAi(){const context=String(activeLesson?.content||'');if(!context.trim()){$('lesson-ai-answer').textContent='Bài học này chưa có nội dung để làm ngữ cảnh cho gia sư AI.';return;}return sendAiQuestion('lesson-ai-question','lesson-ai-ask-button','lesson-ai-answer',context);}
 $('ai-review-button').onclick=startAiReview;$('ai-ask-button').onclick=askAi;$('ai-question').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();askAi();}});
 const renderStudentHome=render;
 render=function(){
@@ -90,6 +92,14 @@ function syncQuizDeadline(){if(activeAttempt?.deadline!=null&&activeAttempt?.ser
 function rememberAttempt(){if(activeAttempt?.id)sessionStorage.setItem(quizStorageKey(),JSON.stringify({id:activeAttempt.id,marked:[...quizMarked]}));}
 async function restoreActiveAttempt(){try{const saved=JSON.parse(sessionStorage.getItem(quizStorageKey())||'null');if(!saved?.id)return;activeAttempt=await api(`attempts/${saved.id}`);syncQuizDeadline();quizMarked=new Set((saved.marked||[]).map(Number));if(activeAttempt.submitted_at){sessionStorage.removeItem(quizStorageKey());return;}renderQuiz(false);enterStudentScreen('quiz');}catch{sessionStorage.removeItem(quizStorageKey());}}
 let studyData={data:{sessions:[]}};
+async function mutatePersonalStudy(mutator){
+ for(let attempt=0;attempt<3;attempt++){
+  const latest=await api('personal-study'),current=latest.data||{plans:[],sessions:[]},next=mutator(current);
+  try{return await api('personal-study','PUT',{expectedVersion:Number(latest.version||0),requestId:crypto.randomUUID(),data:next});}
+  catch(error){if(attempt===2||!/(đã thay đổi|thay đổi)/i.test(error.message))throw error;}
+ }
+ throw Error('Kế hoạch vừa được cập nhật ở nơi khác. Hãy thử lại.');
+}
 function syncStudentScreen(){
  $('home-view').hidden=studentScreen!=='home';
  $('courses-view').hidden=studentScreen!=='courses';
@@ -98,10 +108,12 @@ function syncStudentScreen(){
  $('lesson-view').hidden=studentScreen!=='lesson';
  $('quiz-view').hidden=studentScreen!=='quiz';
  $('report-view').hidden=studentScreen!=='report';
+ $('plans-view').hidden=studentScreen!=='plans';
  $('home-button').classList.toggle('nav-current',studentScreen==='home');
  $('courses-nav').classList.toggle('nav-current',studentScreen==='courses');
  $('classes-nav').classList.toggle('nav-current',studentScreen==='classes');
  $('report-nav').classList.toggle('nav-current',studentScreen==='report');
+ $('plans-nav').classList.toggle('nav-current',studentScreen==='plans');
  window.scrollTo({top:0,behavior:'instant'});
 }
 function enterStudentScreen(next){
@@ -113,6 +125,7 @@ function enterStudentScreen(next){
  history.pushState({studySpaceView:next},'',`#${next}`);
  syncStudentScreen();
  if(next==='classes')loadClassDiscussions();
+ if(next==='plans')renderStudyPlans();
 }
 function backStudentScreen(){
  if(history.state?.studySpaceView){history.back();return;}
@@ -125,6 +138,7 @@ function renderCurrentStudentScreen(){
  else if(studentScreen==='lesson'&&activeLesson){const found=findLesson(activeLesson.id);if(found)renderLesson(found.chapter);}
  else if(studentScreen==='classes')renderClasses();
  else if(studentScreen==='report')renderStudyReport();
+ else if(studentScreen==='plans')renderStudyPlans();
 }
 window.addEventListener('popstate',event=>{
  const previous=studentScreen;
@@ -144,6 +158,7 @@ $('back-courses').onclick=backStudentScreen;
 $('back-lesson').onclick=backStudentScreen;
 $('back-quiz').onclick=backStudentScreen;
 $('back-report').onclick=backStudentScreen;
+$('back-plans').onclick=backStudentScreen;
 openCourse=async function(id){
  try{
   await api(`courses/${id}/start`,'PUT',{});
@@ -166,7 +181,8 @@ function openLesson(id){
 function renderLesson(chapter){
  if(!activeLesson)return;
  const lessons=(chapter.lessons||[]),index=lessons.findIndex(item=>Number(item.id)===Number(activeLesson.id)),next=lessons.slice(index+1).find(item=>!item.locked);
- $('lesson-content').innerHTML=`<article class="lesson-page"><header class="course-detail-head"><span class="student-kicker">${escapeHtml(chapter.title)}</span><h1>${escapeHtml(activeLesson.title)}</h1><p>${activeLesson.completed?'Bài học đã được lưu vào tiến độ của bạn.':'Học xong nội dung rồi đánh dấu để lưu tiến độ.'}</p></header><div class="lesson-body">${escapeHtml(activeLesson.content||'Nội dung bài học đang được cập nhật.').replace(/\n/g,'<br>')}${activeLesson.material_url?`<p class="lesson-material"><a href="${escapeHtml(activeLesson.material_url)}" target="_blank" rel="noopener">Mở hoặc tải tài liệu ↗</a></p>`:''}</div><div class="lesson-footer">${activeLesson.completed?'<span class="lesson-state">✓ Đã hoàn thành</span>':`<button class="button button-primary" id="complete-current-lesson" type="button">Đánh dấu đã học</button>`}${next?`<button class="button button-secondary" id="next-lesson" type="button">Bài tiếp theo →</button>`:''}</div></article>`;
+ $('lesson-content').innerHTML=`<article class="lesson-page"><header class="course-detail-head"><span class="student-kicker">${escapeHtml(chapter.title)}</span><h1>${escapeHtml(activeLesson.title)}</h1><p>${activeLesson.completed?'Bài học đã được lưu vào tiến độ của bạn.':'Học xong nội dung rồi đánh dấu để lưu tiến độ.'}</p></header><div class="lesson-body">${escapeHtml(activeLesson.content||'Nội dung bài học đang được cập nhật.').replace(/\n/g,'<br>')}${activeLesson.material_url?`<p class="lesson-material"><a href="${escapeHtml(activeLesson.material_url)}" target="_blank" rel="noopener">Mở hoặc tải tài liệu ↗</a></p>`:''}</div><section class="lesson-ai-panel" aria-labelledby="lesson-ai-title"><div class="lesson-ai-heading"><div><span class="student-kicker">GIA SƯ THEO BÀI HỌC</span><h2 id="lesson-ai-title">Hỏi về nội dung bài này</h2><p>Câu trả lời được gửi kèm nội dung bài đang mở.</p></div><span class="lesson-ai-mark" aria-hidden="true">✦</span></div><div class="lesson-ai-compose"><input id="lesson-ai-question" maxlength="4000" placeholder="Ví dụ: Giải thích khái niệm chính bằng ví dụ đơn giản…"><button id="lesson-ai-ask-button" type="button">Hỏi AI</button></div><p id="lesson-ai-answer" class="lesson-ai-answer" aria-live="polite">Gia sư sẽ chỉ dựa trên bài học hiện tại.</p></section><div class="lesson-footer">${activeLesson.completed?'<span class="lesson-state">✓ Đã hoàn thành</span>':`<button class="button button-primary" id="complete-current-lesson" type="button">Đánh dấu đã học</button>`}${next?`<button class="button button-secondary" id="next-lesson" type="button">Bài tiếp theo →</button>`:''}</div></article>`;
+ const askButton=$('lesson-ai-ask-button');askButton.onclick=askLessonAi;$('lesson-ai-question').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();askLessonAi();}});
  const complete=$('complete-current-lesson');if(complete)complete.onclick=()=>completeCurrentLesson(complete,chapter);
  const nextButton=$('next-lesson');if(nextButton)nextButton.onclick=()=>openLesson(Number(next.id));
 }
@@ -236,7 +252,7 @@ function ensureStudentSectionPages(){
 }
 function ensureStudentNavigation(){
  const nav=document.querySelector('.student-topbar nav');let anchor=$('home-button');
- for(const [id,label,screen]of [['courses-nav','Môn học','courses'],['classes-nav','Lớp học','classes'],['report-nav','Báo cáo','report']]){
+ for(const [id,label,screen]of [['courses-nav','Môn học','courses'],['classes-nav','Lớp học','classes'],['report-nav','Báo cáo','report'],['plans-nav','Kế hoạch','plans']]){
   let button=$(id);if(!button){button=document.createElement('button');button.id=id;button.type='button';button.textContent=label;anchor.insertAdjacentElement('afterend',button);}
   button.onclick=()=>screen==='report'?openStudyReport():enterStudentScreen(screen);anchor=button;
  }
@@ -246,13 +262,15 @@ function ensureContinueLearningUI(){
  if(!$('continue-learning')&&heading)heading.insertAdjacentHTML('afterend',`<section class="continue-learning" id="continue-learning"><div class="continue-copy"><span class="continue-state" id="continue-state">ĐANG TẢI</span><h2 id="continue-title">Tiếp tục hành trình học tập</h2><p id="continue-description">Một bước nhỏ hôm nay sẽ giúp bạn tiến gần mục tiêu hơn.</p><div class="continue-progress"><span><i id="continue-progress-bar"></i></span><b id="continue-progress-label">0%</b></div><button class="continue-action" id="continue-course-button" type="button">Mở lộ trình <span>→</span></button></div><button class="continue-visual" id="continue-next-lesson" type="button"><span class="continue-visual-book" aria-hidden="true">▤</span><span class="continue-visual-step"><b id="continue-lesson-title">Bài tiếp theo</b><span id="continue-lesson-course"></span><i aria-hidden="true"></i></span></button></section>`);
 }
 async function loadNextLesson(){
- nextLesson=null;
- const candidates=[...courses].sort((a,b)=>Number(b.started_at!=null)-Number(a.started_at!=null));
- const details=await Promise.allSettled(candidates.map(course=>api(`courses/${course.id}`)));
- for(let index=0;index<details.length;index++){
-  const result=details[index];if(result.status!=='fulfilled')continue;
-  for(const chapter of result.value.chapters||[]){const lesson=(chapter.lessons||[]).find(item=>!item.completed&&!item.locked);if(lesson){nextLesson={courseId:Number(candidates[index].id),lessonId:Number(lesson.id),lessonTitle:lesson.title,courseTitle:candidates[index].title};return;}}
- }
+ nextLesson=null;nextLessonLoading=true;
+ try{
+  const candidates=[...courses].sort((a,b)=>Number(b.started_at!=null)-Number(a.started_at!=null));
+  const details=await Promise.allSettled(candidates.map(course=>api(`courses/${course.id}`)));
+  for(let index=0;index<details.length;index++){
+   const result=details[index];if(result.status!=='fulfilled')continue;
+   for(const chapter of result.value.chapters||[]){const lesson=(chapter.lessons||[]).find(item=>!item.completed&&!item.locked);if(lesson){nextLesson={courseId:Number(candidates[index].id),lessonId:Number(lesson.id),lessonTitle:lesson.title,courseTitle:candidates[index].title};return;}}
+  }
+ }finally{nextLessonLoading=false;}
 }
 function renderContinueLearning(){
  ensureContinueLearningUI();
@@ -265,8 +283,8 @@ function renderContinueLearning(){
  $('continue-course-button').innerHTML=`${complete?'Ôn lại lộ trình':started?'Tiếp tục học':course?'Bắt đầu học':'Xem môn học'} <span>→</span>`;
  $('continue-learning').classList.toggle('is-complete',Boolean(complete));
  $('continue-course-button').onclick=()=>course?openCourse(Number(course.id)):enterStudentScreen('courses');
- $('continue-lesson-title').textContent=nextLesson?.lessonTitle||(complete?'Đã hoàn thành tất cả bài học':'Chưa có bài học tiếp theo');
- $('continue-lesson-course').textContent=nextLesson?.courseTitle||'BÀI HỌC TIẾP THEO';
+ $('continue-lesson-title').textContent=nextLesson?.lessonTitle||(nextLessonLoading?'Đang tìm bài tiếp theo…':complete?'Đã hoàn thành tất cả bài học':'Chưa có bài học tiếp theo');
+ $('continue-lesson-course').textContent=nextLesson?.courseTitle||(nextLessonLoading?'ĐANG TẢI':'BÀI HỌC TIẾP THEO');
  $('continue-next-lesson').disabled=!nextLesson;
  $('continue-next-lesson').onclick=async()=>{if(!nextLesson)return;await openCourse(nextLesson.courseId);if(findLesson(nextLesson.lessonId))openLesson(nextLesson.lessonId);};
 }
@@ -276,10 +294,31 @@ function renderStudyTime(){
  $('study-time-chart').innerHTML=focusChartMarkup(true);
  document.querySelectorAll('[data-start-focus]').forEach(button=>button.onclick=startWebFocus);
 }
+function weeklyGoalKey(){return `studyspace_weekly_goal_${encodeURIComponent(currentAccount?.username||'student')}`;}
+function weeklyGoals(){try{return {...{minutes:180,quizzes:5},...JSON.parse(localStorage.getItem(weeklyGoalKey())||'{}')};}catch{return {minutes:180,quizzes:5};}}
+function localDayStart(date=new Date()){const value=new Date(date);value.setHours(0,0,0,0);return value;}
+function renderStudyPlans(){
+ const host=$('plans-list');if(!host)return;
+ if(studyLoadError){host.innerHTML=studentLoadError(studyLoadError);host.querySelector('[data-retry-student]').onclick=()=>load();return;}
+ const data=studyData?.data||{plans:[],sessions:[]},plans=[...(data.plans||[])].sort((a,b)=>Number(a.dueDate||0)-Number(b.dueDate||0));
+ const start=localDayStart(),monday=new Date(start);monday.setDate(start.getDate()-((start.getDay()+6)%7));
+ const sessions=(data.sessions||[]).filter(item=>item.sessionType==='focus'&&Number(item.timestamp)>=monday.getTime()&&Number(item.durationMinutes)>0);
+ const minutes=sessions.reduce((sum,item)=>sum+Number(item.durationMinutes||0),0),quizzes=(progress.history||[]).filter(item=>Number(item.submitted_at)>=monday.getTime()&&item.submitted_at!=null).length,goals=weeklyGoals();
+ $('weekly-focus-value').textContent=`${minutes} / ${goals.minutes} phút`;$('weekly-quiz-value').textContent=`${quizzes} / ${goals.quizzes}`;
+ $('weekly-focus-progress').style.width=`${Math.min(100,Math.round(minutes*100/Math.max(1,goals.minutes)))}%`;$('weekly-quiz-progress').style.width=`${Math.min(100,Math.round(quizzes*100/Math.max(1,goals.quizzes)))}%`;
+ $('weekly-goal-form').elements.minutes.value=goals.minutes;$('weekly-goal-form').elements.quizzes.value=goals.quizzes;
+ $('plans-count').textContent=`${plans.length} ${plans.length===1?'việc':'việc'}`;
+ host.innerHTML=plans.length?plans.map(plan=>{const due=Number(plan.dueDate||0),overdue=!plan.isCompleted&&due>0&&due<start.getTime(),date=due?new Date(due).toLocaleDateString('vi-VN',{day:'numeric',month:'long',year:'numeric'}):'Chưa đặt hạn';return `<article class="plan-card ${plan.isCompleted?'is-complete':''}"><div class="plan-card-main"><div class="plan-card-title"><h3>${escapeHtml(plan.title)}</h3><span class="plan-status ${plan.isCompleted?'is-complete':overdue?'is-overdue':'is-upcoming'}">${plan.isCompleted?'Hoàn thành':overdue?'Quá hạn':'Đang chờ'}</span></div><p>${escapeHtml(plan.description||'Chưa có mô tả.')}</p><div class="plan-card-meta"><span>${escapeHtml(plan.category||'Học tập')}</span><span>${Number(plan.targetMinutes||25)} phút</span><time>${escapeHtml(date)}</time></div></div><div class="plan-card-actions"><button type="button" class="secondary-action" data-plan-complete="${Number(plan.id)}">${plan.isCompleted?'Hoàn tác':'Hoàn thành'}</button><button type="button" class="plan-delete-button" data-plan-delete="${Number(plan.id)}">Xóa</button></div></article>`;}).join(''):empty('Chưa có việc học nào','Thêm một việc nhỏ có thời hạn để bắt đầu theo dõi kế hoạch của bạn.');
+ $('weekly-goal-form').onsubmit=event=>{event.preventDefault();const next={minutes:Number(event.currentTarget.elements.minutes.value),quizzes:Number(event.currentTarget.elements.quizzes.value)};if(!Number.isFinite(next.minutes)||next.minutes<15||next.minutes>3000||!Number.isFinite(next.quizzes)||next.quizzes<1||next.quizzes>100){toast('Mục tiêu tuần chưa hợp lệ.');return;}try{localStorage.setItem(weeklyGoalKey(),JSON.stringify(next));renderStudyPlans();toast('Đã lưu mục tiêu tuần trên trình duyệt này.');}catch{toast('Không lưu được mục tiêu trên trình duyệt này.');}};
+ $('plan-form').onsubmit=async event=>{event.preventDefault();const form=event.currentTarget,button=form.querySelector('[type=submit]'),title=form.elements.title.value.trim(),category=form.elements.category.value.trim(),dueDate=form.elements.dueDate.value,targetMinutes=Number(form.elements.targetMinutes.value);if(!title||!category||!dueDate||targetMinutes<1||targetMinutes>1440){toast('Hãy kiểm tra tên việc, môn học, hạn và thời lượng.');return;}const [year,month,day]=dueDate.split('-').map(Number),plan={title,category,description:form.elements.description.value.trim(),targetMinutes,elapsedTimeSeconds:0,isCompleted:false,dueDate:new Date(year,month-1,day,12).getTime(),isSmartReminderEnabled:false,reminderHour:20,reminderMinute:0,createdAt:Date.now(),completedAt:0};button.disabled=true;try{studyData=await mutatePersonalStudy(latest=>{const currentPlans=latest.plans||[];return {...latest,plans:[...currentPlans,{...plan,id:Math.max(0,...currentPlans.map(item=>Number(item.id)||0))+1}]};});studyLoadError=null;form.reset();form.elements.targetMinutes.value=25;renderStudyPlans();toast('Đã thêm việc học vào kế hoạch.');}catch(error){toast(error.message);}finally{button.disabled=false;}};
+ host.querySelectorAll('[data-plan-complete]').forEach(button=>button.onclick=async()=>{const id=Number(button.dataset.planComplete);button.disabled=true;try{studyData=await mutatePersonalStudy(latest=>({...latest,plans:(latest.plans||[]).map(plan=>Number(plan.id)===id?{...plan,isCompleted:!plan.isCompleted,completedAt:plan.isCompleted?0:Date.now()}:plan)}));studyLoadError=null;renderStudyPlans();toast((studyData.data.plans||[]).find(plan=>Number(plan.id)===id)?.isCompleted?'Đã hoàn thành việc học.':'Đã mở lại việc học.');}catch(error){toast(error.message);button.disabled=false;}});
+ host.querySelectorAll('[data-plan-delete]').forEach(button=>button.onclick=async()=>{const id=Number(button.dataset.planDelete),plan=plans.find(item=>Number(item.id)===id);if(!plan||!confirm(`Xóa việc “${plan.title}” khỏi kế hoạch?`))return;button.disabled=true;try{studyData=await mutatePersonalStudy(latest=>({...latest,plans:(latest.plans||[]).filter(item=>Number(item.id)!==id)}));studyLoadError=null;renderStudyPlans();toast('Đã xóa việc khỏi kế hoạch.');}catch(error){toast(error.message);button.disabled=false;}});
+}
+function openStudyPlans(){renderStudyPlans();enterStudentScreen('plans');}
 function startWebFocus(){
  const dialog=document.createElement('dialog');dialog.className='web-focus-dialog';dialog.innerHTML='<form method="dialog"><button class="modal-close" aria-label="Đóng">×</button></form><span class="student-kicker">PHIÊN TẬP TRUNG</span><h2>25 phút học sâu</h2><p id="web-focus-clock">25:00</p><button id="web-focus-stop" class="button button-primary" type="button">Kết thúc và lưu phiên</button>';document.body.append(dialog);dialog.showModal();let remaining=1500;const clock=dialog.querySelector('#web-focus-clock');const timer=setInterval(()=>{remaining--;clock.textContent=`${Math.floor(remaining/60)}:${String(remaining%60).padStart(2,'0')}`;if(remaining<=0){clearInterval(timer);saveWebFocus(dialog,25);}},1000);dialog.addEventListener('close',()=>clearInterval(timer));dialog.querySelector('#web-focus-stop').onclick=()=>{const minutes=Math.floor((1500-remaining)/60);if(minutes<1){toast('Hãy tập trung ít nhất 1 phút để lưu phiên.');return;}clearInterval(timer);saveWebFocus(dialog,minutes);};
 }
-async function saveWebFocus(dialog,minutes){if(dialog.dataset.saved)return;dialog.dataset.saved='true';try{const sessions=[...(studyData?.data?.sessions||[]),{id:Math.floor(Date.now()%2000000000)+1,taskId:null,taskTitle:'Phiên tập trung trên web',durationMinutes:minutes,sessionType:'focus',timestamp:Date.now()}];const result=await api('personal-study','PUT',{expectedVersion:Number(studyData.version||0),requestId:crypto.randomUUID(),data:{plans:studyData?.data?.plans||[],sessions}});studyData=result;dialog.close();dialog.remove();renderStudyTime();if(studentScreen==='report')renderStudyReport();toast(`Đã lưu phiên tập trung ${minutes} phút.`);}catch(error){dialog.dataset.saved='';toast(error.message);}}
+async function saveWebFocus(dialog,minutes){if(dialog.dataset.saved)return;dialog.dataset.saved='true';try{studyData=await mutatePersonalStudy(data=>({...data,sessions:[...(data.sessions||[]),{id:Math.floor(Date.now()%2000000000)+1,taskId:null,taskTitle:'Phiên tập trung trên web',durationMinutes:minutes,sessionType:'focus',timestamp:Date.now()}]}));dialog.close();dialog.remove();renderStudyTime();if(studentScreen==='report')renderStudyReport();if(studentScreen==='plans')renderStudyPlans();toast(`Đã lưu phiên tập trung ${minutes} phút.`);}catch(error){dialog.dataset.saved='';toast(error.message);}}
 function renderStudyReport(){
  const sessions=focusSessions().sort((a,b)=>Number(b.timestamp)-Number(a.timestamp)),days=weeklyFocus(),weekMinutes=days.reduce((sum,day)=>sum+day.minutes,0),weekSessions=sessions.filter(item=>{const date=new Date(Number(item.timestamp));const start=new Date();start.setHours(0,0,0,0);start.setDate(start.getDate()-((start.getDay()+6)%7));return date>=start;});
  const quizzes=(progress.history||[]).filter(item=>item.submitted_at!=null).slice(0,8);
@@ -319,15 +358,18 @@ load=async function(){
   courses=courseResult.status==='fulfilled'?courseResult.value:[];
   progress=progressResult.status==='fulfilled'?progressResult.value:{};
   studentClasses=classResult.status==='fulfilled'?classResult.value:[];
-  studyData=studyResult.status==='fulfilled'?studyResult.value:{data:{sessions:[]}};
+  studyLoadError=studyResult.status==='rejected'?studyResult.reason:null;
+  studyData=studyResult.status==='fulfilled'?studyResult.value:{version:0,data:{plans:[],sessions:[]}};
   loadNextLesson().then(()=>{if(studentScreen==='home')renderContinueLearning();});
-  if(location.hash==='#classes'){
-   studentScreen='classes';studentScreenStack=[];
-   history.replaceState({studySpaceView:'classes'},'',location.pathname+location.search+'#classes');
+  if(location.hash==='#classes'||location.hash==='#plans'||location.hash==='#report'){
+   studentScreen=location.hash==='#classes'?'classes':location.hash==='#plans'?'plans':'report';studentScreenStack=[];
+   history.replaceState({studySpaceView:studentScreen},'',location.pathname+location.search+`#${studentScreen}`);
    syncStudentScreen();
   }
   progressLoadError=progressResult.status==='rejected'?progressResult.reason:null;
   render();renderClasses();await restoreActiveAttempt();
+  if(studyLoadError&&studentScreen==='plans')renderStudyPlans();
+  else if(studentScreen==='plans')renderStudyPlans();
   if(courseResult.status==='rejected')showStudentDataError('course-list',courseResult.reason);
   if(progressResult.status==='rejected')showStudentDataError('history-list',progressResult.reason);
   if(classResult.status==='rejected')showStudentDataError('student-class-list',classResult.reason);

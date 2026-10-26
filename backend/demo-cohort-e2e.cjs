@@ -33,8 +33,17 @@ async function takeRoleScreenshots(browser, role, token, viewports) {
       await demoClassRow.waitFor();
       await demoClassRow.locator('[data-class-report]').click();
       await page.locator('#class-report:not([hidden])').waitFor();
+      await page.waitForFunction(() => !!window.Chart?.getChart('class-chapter-chart') && !!window.Chart?.getChart('class-question-chart'));
+      assert(await page.locator('.class-heatmap tbody tr').count() === 28, `${viewport.name}: heatmap contains all 28 learners`);
+      assert(await page.evaluate(() => ['class-chapter-chart','class-question-chart'].every(id => document.getElementById(id).getBoundingClientRect().width > 0)), `${viewport.name}: both class charts have visible canvas dimensions`);
       assert((await page.locator('#class-report').innerText()).includes('28'), `${viewport.name}: teacher report shows class of 28`);
       assert((await page.locator('#class-report').innerText()).includes('Chuẩn hóa dữ liệu'), `${viewport.name}: teacher report shows chapter breakdown`);
+      if (viewport.name === 'mobile') {
+        await page.locator('#class-report-charts').evaluate(element => element.scrollIntoView({ block: 'start' }));
+        await page.screenshot({ path: path.join(out, 'demo-cohort-teacher-report-mobile.png'), animations: 'disabled' });
+      } else {
+        await page.locator('#class-report').screenshot({ path: path.join(out, 'demo-cohort-teacher-report-desktop.png'), animations: 'disabled' });
+      }
       if (viewport.name === 'mobile') {
         await page.locator('#class-report [data-close-panel]').click();
         await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'instant' }));

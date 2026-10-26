@@ -5,6 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.LocalTime;
+import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -35,7 +41,25 @@ class DemoCohortSeederIntegrationTest {
         assertEquals(6, lessons);
         assertEquals(18, questions);
         assertEquals(28, enrollments);
-        assertEquals(306, attempts);
+        assertEquals(918, attempts);
+        long termStart = LocalDateTime.of(LocalDate.of(2026, 8, 3), LocalTime.of(8, 0))
+            .atZone(ZoneId.of("Asia/Ho_Chi_Minh")).toInstant().toEpochMilli();
+        long termEnd = LocalDateTime.of(LocalDate.of(2026, 10, 21), LocalTime.of(17, 0))
+            .atZone(ZoneId.of("Asia/Ho_Chi_Minh")).toInstant().toEpochMilli();
+        var activityRange = db.queryForMap("SELECT MIN(qa.started_at) AS first, MAX(qa.submitted_at) AS last FROM quiz_attempts qa JOIN accounts a ON a.id=qa.user_id WHERE a.username LIKE 'demo_cohort_%'");
+        assertTrue(((Number) activityRange.get("first")).longValue() >= termStart);
+        assertTrue(((Number) activityRange.get("last")).longValue() <= termEnd + Duration.ofMinutes(8).toMillis());
+        assertEquals(5, count("SELECT COUNT(*) FROM course_learning cl JOIN accounts a ON a.id=cl.user_id WHERE a.username IN ('demo_cohort_24','demo_cohort_25','demo_cohort_26','demo_cohort_27','demo_cohort_28') AND cl.last_accessed_at < " + (termEnd - Duration.ofDays(30).toMillis())));
+        String studentSnapshot = db.queryForObject("SELECT payload FROM personal_study_snapshots WHERE user_id=(SELECT id FROM accounts WHERE username='demo_cohort_10') ORDER BY version DESC LIMIT 1", String.class);
+        try {
+            var payload = new ObjectMapper().readTree(studentSnapshot);
+            assertEquals("Ôn tập chuẩn hóa dữ liệu", payload.path("plans").get(0).path("title").asText());
+            long dueDate = payload.path("plans").get(0).path("dueDate").asLong();
+            assertTrue(dueDate > termEnd);
+            assertTrue(payload.path("sessions").size() >= 20);
+        } catch (Exception e) {
+            fail("Demo semester snapshot should be valid JSON", e);
+        }
         assertEquals(4, count("SELECT COUNT(*) FROM course_messages WHERE course_id=(SELECT id FROM courses WHERE title='Cơ sở dữ liệu · Lớp thực hành mẫu')"));
         assertEquals(3, count("SELECT COUNT(*) FROM courses WHERE created_by=(SELECT id FROM accounts WHERE username='demo_cohort_teacher')"));
         assertEquals(18, count("SELECT COUNT(*) FROM lessons l JOIN chapters ch ON ch.id=l.chapter_id JOIN courses c ON c.id=ch.course_id WHERE c.created_by=(SELECT id FROM accounts WHERE username='demo_cohort_teacher')"));

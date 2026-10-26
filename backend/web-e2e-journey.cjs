@@ -3,9 +3,11 @@ const { chromium } = require('C:/Users/ADMIN/.cache/codex-runtimes/codex-primary
 const base = 'http://127.0.0.1:8080';
 const apiBase = `${base}/api`;
 const stamp = Date.now();
-const teacherName = `ui_teacher_${stamp}`;
-const studentName = `ui_student_${stamp}`;
-const password = `QA!${stamp}Aa`;
+const fixedDemo = process.env.STUDYSPACE_FIXED_DEMO === '1';
+const teacherScreenshot = process.env.STUDYSPACE_E2E_TEACHER_SCREENSHOT || 'docs/test-evidence/phase2-teacher-dashboard.png';
+const teacherName = fixedDemo ? 'demo_cohort_teacher' : `ui_teacher_${stamp}`;
+const studentName = fixedDemo ? 'demo_cohort_10' : `ui_student_${stamp}`;
+const password = fixedDemo ? process.env.STUDYSPACE_DEMO_PASSWORD : `QA!${stamp}Aa`;
 let teacher = null;
 let student = null;
 let admin = null;
@@ -42,13 +44,21 @@ async function openEditor(page, id) {
 }
 
 async function main() {
-  if (!process.env.STUDYSPACE_ADMIN_PASSWORD) throw new Error('STUDYSPACE_ADMIN_PASSWORD is required.');
   if (!process.env.STUDYSPACE_DB_PASSWORD) throw new Error('STUDYSPACE_DB_PASSWORD is required for cleanup.');
-  admin = await api('auth/login', null, 'POST', { username: 'admin', password: process.env.STUDYSPACE_ADMIN_PASSWORD });
-  student = await api('auth/register', null, 'POST', { username: studentName, password });
-  const teacherRegistration = await api('auth/register', null, 'POST', { username: teacherName, password });
-  await api(`admin/users/${teacherRegistration.account.id}/role`, admin.token, 'PUT', { role: 'TEACHER' });
-  teacher = await api('auth/login', null, 'POST', { username: teacherName, password });
+  if (fixedDemo) {
+    if (!password) throw new Error('STUDYSPACE_DEMO_PASSWORD is required for the fixed demo pair.');
+    [teacher, student] = await Promise.all([
+      api('auth/login', null, 'POST', { username: teacherName, password }),
+      api('auth/login', null, 'POST', { username: studentName, password }),
+    ]);
+  } else {
+    if (!process.env.STUDYSPACE_ADMIN_PASSWORD) throw new Error('STUDYSPACE_ADMIN_PASSWORD is required.');
+    admin = await api('auth/login', null, 'POST', { username: 'admin', password: process.env.STUDYSPACE_ADMIN_PASSWORD });
+    student = await api('auth/register', null, 'POST', { username: studentName, password });
+    const teacherRegistration = await api('auth/register', null, 'POST', { username: teacherName, password });
+    await api(`admin/users/${teacherRegistration.account.id}/role`, admin.token, 'PUT', { role: 'TEACHER' });
+    teacher = await api('auth/login', null, 'POST', { username: teacherName, password });
+  }
 
   const pageErrors = [];
   browser = await chromium.launch({ headless: true, channel: 'msedge' });
@@ -63,8 +73,8 @@ async function main() {
   await teacherPage.waitForURL('**/teacher.html');
   await teacherPage.locator('#workspace:not([hidden])').waitFor();
   await teacherPage.waitForTimeout(400);
-  await teacherPage.screenshot({ path: 'docs/test-evidence/phase2-teacher-dashboard.png' });
-  check(await teacherPage.locator('#stat-courses').textContent() === '0', 'teacher signs in and workspace loads');
+  await teacherPage.screenshot({ path: teacherScreenshot });
+  check(fixedDemo ? Number(await teacherPage.locator('#stat-courses').textContent()) >= 3 : await teacherPage.locator('#stat-courses').textContent() === '0', 'teacher signs in and workspace loads');
 
   const courseTitle = `QA Journey ${stamp}`;
   await teacherPage.locator('.teacher-sidebar a[href="#teacher-courses"]').click();
@@ -128,7 +138,8 @@ async function main() {
   await waitStatus(teacherPage, 'Đã lưu nội dung');
   content = await api('teacher/content', teacher.token);
   questionId = Number(content.questions.find(question => question.chapter_id === chapterId)?.id);
-  check(questionId > 0 && await teacherPage.locator('#stat-questions').textContent() === '1', 'teacher writes an explained quiz question and dashboard counts update');
+  const questionCount = Number(await teacherPage.locator('#stat-questions').textContent());
+  check(questionId > 0 && (fixedDemo ? questionCount >= 31 : questionCount === 1), 'teacher writes an explained quiz question and dashboard counts update');
   await teacherPage.locator('.teacher-sidebar a[href="#teacher-courses"]').click();
   const publishCard = teacherPage.locator('#course-list .teacher-course-card').filter({ hasText: courseTitle });
   await publishCard.locator('summary').click();
@@ -170,7 +181,11 @@ async function main() {
   await studentPage.locator('#class-code').fill(classroom.join_code);
   await studentPage.locator('#class-join-form button').click();
   await studentPage.locator('.student-class-card').waitFor();
-  check(await studentPage.locator('.student-class-card h3').textContent() === classroom.name, 'student joins the class in the portal and sees the assigned course');
+  await studentPage.locator('#discussion-class-select').selectOption(String(classId));
+  await studentPage.waitForFunction(name => document.querySelector('.student-class-card h3')?.textContent.includes(name), classroom.name);
+  const joinedClassCard = studentPage.locator('.student-class-card').filter({ hasText: classroom.name }).first();
+  await joinedClassCard.waitFor();
+  check((await joinedClassCard.locator('h3').textContent()).includes(classroom.name), 'student joins the class in the portal and sees the assigned course');
   await studentPage.locator('[data-send-course] input[name=body]').fill('Em đã vào lớp và bắt đầu học ạ.');
   await studentPage.locator('[data-send-course] button').click();
   await studentPage.getByText('Em đã vào lớp và bắt đầu học ạ.').waitFor();
@@ -241,7 +256,20 @@ async function cleanup() {
     const materialPath = path.resolve(materialDirectory, materialFilename);
     if (materialPath.startsWith(materialDirectory + path.sep)) require('node:fs').rmSync(materialPath, { force: true });
   }
-  const sql = `BEGIN;
+  const sql = fixedDemo ? `BEGIN;
+DELETE FROM attempt_answers WHERE attempt_id IN (SELECT id FROM quiz_attempts WHERE id=${attemptId || 0} AND user_id=${sid});
+DELETE FROM quiz_attempts WHERE id=${attemptId || 0} AND user_id=${sid};
+DELETE FROM lesson_progress WHERE user_id=${sid} AND lesson_id IN (${lessonIds.length ? lessonIds.join(',') : '0'});
+DELETE FROM class_enrollments WHERE student_id=${sid} AND class_id=${classId || 0};
+DELETE FROM course_messages WHERE course_id=${courseId || 0};
+DELETE FROM course_presence WHERE course_id=${courseId || 0};
+DELETE FROM course_learning WHERE user_id IN (${sid},${tid}) AND course_id=${courseId || 0};
+DELETE FROM study_classes WHERE id=${classId || 0} AND teacher_id=${tid};
+DELETE FROM questions WHERE chapter_id IN (SELECT id FROM chapters WHERE course_id=${courseId || 0}) OR id=${questionId || 0};
+DELETE FROM lessons WHERE chapter_id IN (SELECT id FROM chapters WHERE course_id=${courseId || 0}) OR id IN (${lessonIds.length ? lessonIds.join(',') : '0'});
+DELETE FROM chapters WHERE course_id=${courseId || 0} OR id=${chapterId || 0};
+DELETE FROM courses WHERE id=${courseId || 0} AND created_by=${tid};
+COMMIT;` : `BEGIN;
 DELETE FROM attempt_answers WHERE attempt_id IN (SELECT id FROM quiz_attempts WHERE user_id=${sid});
 DELETE FROM quiz_attempts WHERE user_id=${sid};
 DELETE FROM lesson_progress WHERE user_id=${sid};
@@ -259,13 +287,18 @@ DELETE FROM sessions WHERE user_id IN (${sid},${tid});
 DELETE FROM portal_tickets WHERE user_id IN (${sid},${tid});
 DELETE FROM accounts WHERE (id=${sid} AND username='${studentName}') OR (id=${tid} AND username='${teacherName}');
 COMMIT;`;
+  const databaseUrl = new URL((process.env.DB_URL || 'jdbc:postgresql://127.0.0.1:5432/studyspace').replace(/^jdbc:/, ''));
+  if (databaseUrl.protocol !== 'postgresql:') throw new Error('QA cleanup requires a PostgreSQL DB_URL.');
+  const databaseName = decodeURIComponent(databaseUrl.pathname.replace(/^\//, '')) || 'studyspace';
   const psql = require('node:child_process').spawnSync(
     `${__dirname}/portable/pgsql/bin/psql.exe`,
-    ['-h', '127.0.0.1', '-p', '55432', '-U', 'studyspace', '-d', 'studyspace', '-v', 'ON_ERROR_STOP=1', '-c', sql],
+    ['-h', databaseUrl.hostname, '-p', databaseUrl.port || '5432', '-U', 'studyspace', '-d', databaseName, '-v', 'ON_ERROR_STOP=1', '-c', sql],
     { encoding: 'utf8', env: { ...process.env, PGPASSWORD: process.env.STUDYSPACE_DB_PASSWORD } },
   );
   if (psql.status !== 0) throw new Error(`QA cleanup failed: ${psql.stderr || psql.error}`);
-  console.log('CLEANUP: removed QA users, class, course, lessons, quiz and progress.');
+  console.log(fixedDemo
+    ? 'CLEANUP: removed only temporary course, class, test quiz and test lesson progress; preserved both fixed demo accounts and semester data.'
+    : 'CLEANUP: removed QA users, class, course, lessons, quiz and progress.');
 }
 
 main().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {

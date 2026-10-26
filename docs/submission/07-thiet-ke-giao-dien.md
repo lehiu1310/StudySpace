@@ -1,6 +1,6 @@
 # 7. Thiết kế giao diện
 
-Cập nhật: 2026-10-19. Ảnh web trong mục này là ảnh Playwright thật đã lưu trong
+Cập nhật: 2026-10-22. Ảnh web trong mục này là ảnh Playwright thật đã lưu trong
 repo; mỗi ảnh được ghi rõ vai trò và trạng thái dữ liệu tại lúc chụp. Không dùng
 ảnh web để minh họa Android. Lượt này không có thiết bị ADB nên Android ghi
 **chưa có ảnh**.
@@ -22,7 +22,7 @@ repo; mỗi ảnh được ghi rõ vai trò và trạng thái dữ liệu tại 
 
 | Màn hình | Ảnh | Mục đích và thành phần chính | Luồng chuyển màn |
 |---|---|---|---|
-| Không gian giảng viên — Tổng quan | ![Dashboard giảng viên](screenshots/teacher-dashboard.png) | Sidebar tác vụ và dashboard có bốn số liệu, học viên cần hỗ trợ, câu hỏi sai nhiều và lớp phụ trách. Ảnh cohort demo hiện có 3 khóa, 18 bài, 31 câu hỏi và 2 lớp. | Đăng nhập vai trò giảng viên → Tổng quan → Khóa học/Chương/Bài/Quiz/Lớp học và báo cáo. |
+| Không gian giảng viên — Tổng quan | ![Dashboard giảng viên](screenshots/teacher-dashboard.png) | Sidebar tác vụ và dashboard có bốn số liệu, học viên cần hỗ trợ, câu hỏi sai nhiều và lớp phụ trách. Cohort API local ngày 22/10/2026 có 3 khóa, 18 bài, 35 câu hỏi (30 đang hoạt động) và 2 lớp. | Đăng nhập vai trò giảng viên → Tổng quan → Khóa học/Chương/Bài/Quiz/Lớp học và báo cáo. |
 | Báo cáo lớp | ![Báo cáo lớp](screenshots/teacher-class-report-desktop.png) | Ảnh Playwright 1440×900: 28 học viên, tiến độ/điểm theo chương, 10 câu sai nhiều nhất, heatmap và học viên cần chú ý. Báo cáo lớp hiện dùng bảng/heatmap, không phải Chart.js. | Lớp học → chọn lớp → Báo cáo; có thể xuất CSV. |
 | Trạng thái chưa có khóa | ![Cổng giảng viên khi chưa có khóa](../../backend/docs/test-evidence/phase2-teacher-dashboard.png) | Empty state với CTA tạo khóa; ảnh kiểm thử của tài khoản giảng viên mới, không phải dữ liệu hiện tại của demo. | Empty state → tạo khóa → sau lưu quay lại danh sách khóa. |
 

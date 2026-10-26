@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id);
 const form=$('account-form'),button=$('submit-button');
 let registering=false;
 const staffLanding=new URLSearchParams(location.search).has('staff');
-if(staffLanding){$('form-title').innerHTML='Đăng nhập <span class="text-gradient">không gian quản lý.</span>';$('form-intro').textContent='Dùng tài khoản giảng viên hoặc quản trị viên. StudySpace sẽ tự mở đúng khu vực.';$('switch-mode').hidden=true;$('switch-copy').hidden=true;$('staff-link').hidden=true;}
+if(staffLanding){$('form-title').innerHTML='Đăng nhập <span class="text-gradient">không gian quản lý.</span>';$('form-intro').textContent='Dùng tài khoản giảng viên hoặc quản trị viên. StudySpace sẽ tự mở đúng khu vực.';$('switch-mode').hidden=true;$('switch-copy').hidden=true;$('staff-link').hidden=true;$('social-login').hidden=true;}
 function error(message){const node=$('form-error');node.textContent=message;node.hidden=false;}
 function clearError(){$('form-error').textContent='';$('form-error').hidden=true;}
 function toast(message){const node=$('toast');node.textContent=message;node.classList.add('visible');setTimeout(()=>node.classList.remove('visible'),3200);}

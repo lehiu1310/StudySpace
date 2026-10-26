@@ -1,6 +1,6 @@
 # 5. Giới hạn và hướng phát triển
 
-Cập nhật: 2026-10-19. Mỗi giới hạn được đối chiếu mã nguồn, cấu hình hoặc trạng
+Cập nhật: 2026-10-22. Mỗi giới hạn được đối chiếu mã nguồn, cấu hình hoặc trạng
 thái môi trường; đây không phải cam kết đã triển khai.
 
 | Giới hạn hiện tại | Hướng phát triển |
@@ -11,7 +11,7 @@ thái môi trường; đây không phải cam kết đã triển khai.
 | Quiz thích ứng dùng heuristic: độ khó từ tối đa ba lượt gần nhất, ưu tiên câu sai/câu chưa gặp. | Đánh giá thuật toán trên dữ liệu học thật; bổ sung spaced repetition có lịch ôn và đo hiệu quả. |
 | Spaced repetition chưa được triển khai. | Thiết kế lịch lặp lại cách quãng và cho học viên xem lịch ôn. |
 | Khóa học chỉ có thao tác ẩn/hiện (unpublish/publish), không có chức năng xóa khỏi database. Giữ khóa giúp bảo toàn lịch sử học, quiz và báo cáo liên quan. | Nếu cần vòng đời xóa, thiết kế lưu trữ mềm có kiểm tra tham chiếu và chính sách lưu lịch sử trước; hiện không xóa khóa. |
-| Gemini health ở local trả `not_configured` ngày 2026-10-17; chưa xác nhận live Gemini. | Cấu hình key chỉ ở server, kiểm tra quota/lỗi/mất mạng, xác thực output và giữ nhãn provider chính xác. |
+| Gemini API key hiện được nạp ở backend, nhưng health check local 2026-10-22 trả `project_denied`: Google từ chối quyền project; chưa xác nhận phản hồi Gemini trực tiếp. Gợi ý offline vẫn dùng dữ liệu học đã lưu. | Cấp quyền phù hợp cho Google AI Studio project/key, rồi xác minh health, chat, giải thích câu sai và sinh quiz trước khi giới thiệu AI trực tiếp. |
 | Chưa kiểm tra trọn luồng Android trực tiếp trên thiết bị trong lượt này. | Chạy checklist trên Medium Phone hoặc thiết bị vật lý, gồm PDF, reminder, focus, offline và quyền Android 13+. |
 | Timestamp cũ của khóa/chương/bài là thời điểm migration, không tái tạo được ngày tạo lịch sử. | Dùng `created_at` thật cho dữ liệu mới; ghi rõ nguồn dữ liệu cũ khi xuất báo cáo. |
 

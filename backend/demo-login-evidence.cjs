@@ -59,10 +59,12 @@ async function openSession(browser, role, token, pathName) {
     await classRow.waitFor({ timeout: 20000 });
     await classRow.locator('[data-class-report]').click();
     await teacher.locator('#class-report:not([hidden])').waitFor({ timeout: 20000 });
+    await teacher.waitForFunction(() => !!window.Chart?.getChart('class-chapter-chart') && !!window.Chart?.getChart('class-question-chart'), null, { timeout: 20000 });
+    await teacher.locator('.class-heatmap tbody tr').first().waitFor();
     await teacher.locator('#class-report').evaluate(element => element.scrollIntoView({ block: 'start' }));
     await teacher.waitForTimeout(500);
     await teacher.screenshot({ path: path.join(output, 'teacher-class-report-desktop.png') });
-    console.log('PASS teacher class report rendered and screenshot saved');
+    console.log('PASS teacher class report rendered both Chart.js graphs, heatmap and screenshot saved');
 
     const student = await openSession(browser, 'student', studentToken, '/student.html');
     await student.locator('#report-nav').click();

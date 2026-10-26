@@ -3,6 +3,9 @@ package com.studyspace.server;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -17,6 +20,10 @@ class DemoCohortSeeder {
     private static final String COURSE_TITLE = "Cơ sở dữ liệu · Lớp thực hành mẫu";
     private static final String CLASS_NAME = "CSDL · Lớp thực hành 01";
     private static final long DAY = Duration.ofDays(1).toMillis();
+    private static final ZoneId TERM_ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
+    private static final long TERM_START = at(2026, 8, 3, 8, 0);
+    private static final long TERM_ACTIVITY_END = at(2026, 10, 21, 17, 0);
+    private static final long TERM_CLASS_START = at(2026, 8, 1, 8, 0);
     private static final String[] FIRST_NAMES = {"An", "Bình", "Chi", "Dũng", "Giang", "Hà", "Huy", "Khanh", "Linh", "Minh", "Ngọc", "Phúc", "Quân", "Trang"};
     private static final String[][] CHAPTERS = {
         {"Mô hình quan hệ và khóa", "Khóa chính, khóa ngoại và mô hình hóa quan hệ."},
@@ -119,7 +126,9 @@ class DemoCohortSeeder {
         long kotlinCourseId = seedSupplementalCourse(teacherId, "Lập trình Kotlin · Lớp thực hành mẫu", "Từ kiểu dữ liệu và null safety đến collection, hàm và hướng đối tượng.", "DEMOKOT26", "Kotlin · Lớp thực hành 01", KOTLIN_CHAPTERS, KOTLIN_LESSONS, KOTLIN_QUESTIONS);
         long algorithmCourseId = seedSupplementalCourse(teacherId, "Thuật toán · Lớp thực hành mẫu", "Phân tích độ phức tạp, cấu trúc dữ liệu, tìm kiếm, sắp xếp và đồ thị.", null, null, ALGORITHM_CHAPTERS, ALGORITHM_LESSONS, ALGORITHM_QUESTIONS);
         long kotlinClassId = ensureClass(kotlinCourseId, teacherId, "DEMOKOT26", "Kotlin · Lớp thực hành 01");
-        long anchor = db.queryForObject("SELECT created_at FROM study_classes WHERE id=?", Long.class, classId);
+        db.update("UPDATE study_classes SET created_at=? WHERE id IN (?,?)", TERM_CLASS_START, classId, kotlinClassId);
+        long anchor = TERM_ACTIVITY_END;
+        resetFixtureAttempts(chapterIds);
         List<Long> studentIds = new ArrayList<>();
         for (int i = 0; i < STUDENT_COUNT; i++) {
             String username = studentUsername(i);
@@ -127,21 +136,28 @@ class DemoCohortSeeder {
             studentIds.add(studentId);
             if (db.queryForObject("SELECT COUNT(*) FROM class_enrollments WHERE class_id=? AND student_id=?", Integer.class, classId, studentId) == 0)
                 db.update("INSERT INTO class_enrollments(class_id,student_id,enrolled_at) VALUES(?,?,?)",
-                    classId, studentId, anchor - Duration.ofDays(35).toMillis());
+                    classId, studentId, TERM_START);
             if (db.queryForObject("SELECT COUNT(*) FROM class_enrollments WHERE class_id=? AND student_id=?", Integer.class, kotlinClassId, studentId) == 0)
                 db.update("INSERT INTO class_enrollments(class_id,student_id,enrolled_at) VALUES(?,?,?)",
-                    kotlinClassId, studentId, anchor - Duration.ofDays(35).toMillis());
+                    kotlinClassId, studentId, TERM_START);
+            db.update("UPDATE class_enrollments SET enrolled_at=? WHERE class_id IN (?,?) AND student_id=?",
+                TERM_START, classId, kotlinClassId, studentId);
             seedStudentActivity(studentId, chapterIds, lessonIds, questionIds, i, anchor);
         }
         seedMessages(courseId, teacherId, studentIds, anchor);
     }
 
     private long ensureAccount(String username, String displayName, String role) {
-        var rows = db.queryForList("SELECT id,role FROM accounts WHERE username=?", username);
+        var rows = db.queryForList("SELECT id,role,password_hash,display_name FROM accounts WHERE username=?", username);
         if (!rows.isEmpty()) {
             long id = ((Number) rows.get(0).get("id")).longValue();
             String existingRole = Objects.toString(rows.get(0).get("role"));
             if (!role.equals(existingRole)) throw new IllegalStateException("Demo account has unexpected role: " + username);
+            String existingHash = Objects.toString(rows.get(0).get("password_hash"), "");
+            if (!auth.passwords.matches(demoPassword, existingHash))
+                db.update("UPDATE accounts SET password_hash=? WHERE id=?", auth.passwords.encode(demoPassword), id);
+            if (!Objects.equals(displayName, rows.get(0).get("display_name")))
+                db.update("UPDATE accounts SET display_name=? WHERE id=?", displayName, id);
             return id;
         }
         return insert("INSERT INTO accounts(username,display_name,password_hash,role) VALUES(?,?,?,?)",
@@ -214,7 +230,7 @@ class DemoCohortSeeder {
             return id;
         }
         return insert("INSERT INTO study_classes(course_id,teacher_id,name,join_code,active,created_at) VALUES(?,?,?, ?,TRUE,?)",
-            courseId, teacherId, name, code, System.currentTimeMillis());
+            courseId, teacherId, name, code, TERM_CLASS_START);
     }
 
     private void seedStudentActivity(long userId, long[] chapters, List<List<Long>> lessons,
@@ -222,16 +238,21 @@ class DemoCohortSeeder {
         int completed = studentIndex < 7 ? 6 : studentIndex < 18 ? 3 : studentIndex < 23 ? 1 : 0;
         List<Long> orderedLessons = lessons.stream().flatMap(Collection::stream).toList();
         long courseId = db.queryForObject("SELECT course_id FROM study_classes WHERE join_code=?", Long.class, CLASS_CODE);
+        long lastAccess = anchor - Duration.ofDays(studentIndex >= 23 ? 38 : studentIndex % 5).toMillis();
         if (db.queryForObject("SELECT COUNT(*) FROM course_learning WHERE user_id=? AND course_id=?", Integer.class, userId, courseId) == 0)
             db.update("INSERT INTO course_learning(user_id,course_id,started_at,last_accessed_at) VALUES(?,?,?,?)",
-                userId, courseId, anchor - Duration.ofDays(28).toMillis(), anchor - Duration.ofDays(studentIndex >= 23 ? 17 : studentIndex % 5).toMillis());
+                userId, courseId, TERM_START, lastAccess);
+        else db.update("UPDATE course_learning SET started_at=?,last_accessed_at=? WHERE user_id=? AND course_id=?",
+            TERM_START, lastAccess, userId, courseId);
         for (int l = 0; l < completed; l++) {
-            long completedAt = anchor - Duration.ofDays(25 - Math.min(20, l * 3L)).toMillis();
+            long completedAt = TERM_START + Duration.ofDays(5 + l * 8L).toMillis();
             if (db.queryForObject("SELECT COUNT(*) FROM lesson_progress WHERE user_id=? AND lesson_id=?", Integer.class, userId, orderedLessons.get(l)) == 0)
                 db.update("INSERT INTO lesson_progress(user_id,lesson_id,completed_at) VALUES(?,?,?)",
                     userId, orderedLessons.get(l), completedAt);
+            else db.update("UPDATE lesson_progress SET completed_at=? WHERE user_id=? AND lesson_id=?",
+                completedAt, userId, orderedLessons.get(l));
         }
-        for (int week = 0; week < (studentIndex >= 23 ? 2 : 4); week++) {
+        for (int week = 0; week < (studentIndex >= 23 ? 6 : 12); week++) {
             for (int c = 0; c < chapters.length; c++) seedAttempt(userId, chapters[c], questions.get(c), studentIndex, week, c, anchor);
         }
         seedFocusSnapshot(userId, studentIndex, anchor);
@@ -239,9 +260,10 @@ class DemoCohortSeeder {
 
     private void seedAttempt(long userId, long chapterId, List<Long> questionIds, int studentIndex, int week, int chapterIndex, long anchor) {
         int base = studentIndex < 7 ? 90 : studentIndex < 18 ? 74 : 57;
-        int percent = Math.max(20, Math.min(100, base + week * 2 - (chapterIndex == 1 ? 19 : 0)));
+        int percent = Math.max(20, Math.min(100, base + week * 2 - (chapterIndex == 1 ? 35 : 0)));
         int score = Math.round(percent * questionIds.size() / 100f);
-        long startedAt = anchor - Duration.ofDays((4L - week) * 7L - 2L).toMillis() + (studentIndex * 31L + chapterIndex * 7L) * 60_000L;
+        long startedAt = TERM_START + Duration.ofDays(week * 7L + 2L).toMillis()
+            + Duration.ofMinutes(studentIndex * 4L + chapterIndex * 7L).toMillis();
         var existing = db.queryForList("SELECT id FROM quiz_attempts WHERE user_id=? AND chapter_id=? AND started_at=?", userId, chapterId, startedAt);
         if (!existing.isEmpty()) return;
         long attemptId = insert("INSERT INTO quiz_attempts(user_id,chapter_id,started_at,deadline,submitted_at,score,total) VALUES(?,?,?,?,?,?,?)",
@@ -259,20 +281,64 @@ class DemoCohortSeeder {
     }
 
     private void seedFocusSnapshot(long userId, int studentIndex, long anchor) {
-        if (db.queryForObject("SELECT COUNT(*) FROM personal_study_snapshots WHERE user_id=?", Integer.class, userId) > 0) return;
         List<Map<String, Object>> sessions = new ArrayList<>();
         int dayStride = studentIndex >= 23 ? 5 : 3;
-        for (int day = studentIndex >= 23 ? 14 : 0; day < 28; day += dayStride) {
+        for (int day = studentIndex >= 23 ? 35 : 0; day <= 79; day += dayStride) {
             sessions.add(Map.of("id", sessions.size() + 1, "taskTitle", "Ôn tập Cơ sở dữ liệu", "durationMinutes", 20 + Math.floorMod(studentIndex * 3 + day, 36),
                 "sessionType", "focus", "timestamp", anchor - day * DAY));
         }
         try {
-            String payload = "{\"plans\":[],\"sessions\":" + json.writeValueAsString(sessions) + "}";
-            db.update("INSERT INTO personal_study_snapshots(user_id,version,request_id,payload,updated_at) VALUES(?,1,?,?,?)",
-                userId, "demo-cohort-seed-v1", payload, anchor);
+            List<Map<String, Object>> plans = List.of(
+                plan(1, "Ôn tập chuẩn hóa dữ liệu", "Cơ sở dữ liệu", "Ôn phụ thuộc hàm và phân rã 3NF trước kỳ kiểm tra.", 30, 2026, 11, 3),
+                plan(2, "Làm quiz tổng hợp SQL", "Cơ sở dữ liệu", "Luyện JOIN, GROUP BY, transaction và xem lại câu sai.", 25, 2026, 11, 10),
+                plan(3, "Hoàn thành bài cuối kỳ", "Cơ sở dữ liệu", "Tổng hợp kiến thức ba chương và tự đánh giá tiến độ.", 45, 2026, 11, 24));
+            String payload = json.writeValueAsString(Map.of("plans", plans, "sessions", sessions));
+            var prior = db.queryForList("SELECT version FROM personal_study_snapshots WHERE user_id=? AND request_id=?", userId, "demo-cohort-semester-v2");
+            if (!prior.isEmpty()) {
+                long version = ((Number) prior.get(0).get("version")).longValue();
+                db.update("UPDATE personal_study_snapshots SET payload=?,updated_at=? WHERE user_id=? AND version=?",
+                    payload, anchor, userId, version);
+            } else {
+                long version = db.queryForObject("SELECT COALESCE(MAX(version),0)+1 FROM personal_study_snapshots WHERE user_id=?", Long.class, userId);
+                db.update("INSERT INTO personal_study_snapshots(user_id,version,request_id,payload,updated_at) VALUES(?,?,?,?,?)",
+                    userId, version, "demo-cohort-semester-v2", payload, anchor);
+            }
         } catch (JsonProcessingException e) {
             throw new IllegalStateException("Could not serialize demo focus sessions.", e);
         }
+    }
+
+    private Map<String, Object> plan(int id, String title, String category, String description,
+                                    int minutes, int year, int month, int day) {
+        long now = TERM_ACTIVITY_END;
+        long due = at(year, month, day, 20, 0);
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("id", id);
+        result.put("title", title);
+        result.put("category", category);
+        result.put("description", description);
+        result.put("targetMinutes", minutes);
+        result.put("elapsedTimeSeconds", 0);
+        result.put("isCompleted", false);
+        result.put("dueDate", due);
+        result.put("isSmartReminderEnabled", false);
+        result.put("reminderHour", 18);
+        result.put("reminderMinute", 0);
+        result.put("createdAt", now);
+        result.put("completedAt", 0);
+        return result;
+    }
+
+    private void resetFixtureAttempts(long[] chapterIds) {
+        String placeholders = String.join(",", Collections.nCopies(chapterIds.length, "?"));
+        List<Object> args = new ArrayList<>(Arrays.stream(chapterIds).boxed().toList());
+        db.update("DELETE FROM attempt_answers WHERE attempt_id IN (SELECT qa.id FROM quiz_attempts qa JOIN accounts a ON a.id=qa.user_id WHERE a.username LIKE 'demo_cohort_%' AND qa.chapter_id IN (" + placeholders + "))", args.toArray());
+        db.update("DELETE FROM quiz_attempts WHERE id IN (SELECT qa.id FROM quiz_attempts qa JOIN accounts a ON a.id=qa.user_id WHERE a.username LIKE 'demo_cohort_%' AND qa.chapter_id IN (" + placeholders + "))", args.toArray());
+    }
+
+    private static long at(int year, int month, int day, int hour, int minute) {
+        return LocalDateTime.of(LocalDate.of(year, month, day), java.time.LocalTime.of(hour, minute))
+            .atZone(TERM_ZONE).toInstant().toEpochMilli();
     }
 
     private void seedMessages(long courseId, long teacherId, List<Long> students, long anchor) {
