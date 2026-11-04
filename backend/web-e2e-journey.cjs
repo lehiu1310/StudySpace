@@ -290,11 +290,15 @@ COMMIT;`;
   const databaseUrl = new URL((process.env.DB_URL || 'jdbc:postgresql://127.0.0.1:5432/studyspace').replace(/^jdbc:/, ''));
   if (databaseUrl.protocol !== 'postgresql:') throw new Error('QA cleanup requires a PostgreSQL DB_URL.');
   const databaseName = decodeURIComponent(databaseUrl.pathname.replace(/^\//, '')) || 'studyspace';
-  const psql = require('node:child_process').spawnSync(
-    `${__dirname}/portable/pgsql/bin/psql.exe`,
-    ['-h', databaseUrl.hostname, '-p', databaseUrl.port || '5432', '-U', 'studyspace', '-d', databaseName, '-v', 'ON_ERROR_STOP=1', '-c', sql],
-    { encoding: 'utf8', env: { ...process.env, PGPASSWORD: process.env.STUDYSPACE_DB_PASSWORD } },
-  );
+  const { spawnSync } = require('node:child_process');
+  const localPsql = `${__dirname}/portable/pgsql/bin/psql.exe`;
+  const psql = require('node:fs').existsSync(localPsql)
+    ? spawnSync(localPsql,
+      ['-h', databaseUrl.hostname, '-p', databaseUrl.port || '5432', '-U', 'studyspace', '-d', databaseName, '-v', 'ON_ERROR_STOP=1', '-c', sql],
+      { encoding: 'utf8', env: { ...process.env, PGPASSWORD: process.env.STUDYSPACE_DB_PASSWORD } })
+    : spawnSync('docker',
+      ['exec', '-i', 'backend-postgres-1', 'psql', '-U', 'studyspace', '-d', databaseName, '-v', 'ON_ERROR_STOP=1', '-c', sql],
+      { encoding: 'utf8' });
   if (psql.status !== 0) throw new Error(`QA cleanup failed: ${psql.stderr || psql.error}`);
   console.log(fixedDemo
     ? 'CLEANUP: removed only temporary course, class, test quiz and test lesson progress; preserved both fixed demo accounts and semester data.'

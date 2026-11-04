@@ -1,6 +1,6 @@
 # Kiểm chứng StudySpace
 
-Cập nhật: 2026-10-22. Chỉ trạng thái và số liệu đã xác minh trên máy local được giữ ở đây.
+Cập nhật: 2026-11-04. Các kết quả bên dưới gồm kiểm chứng lịch sử và lần chạy lại hôm nay; trạng thái AI mới nhất được ghi riêng để tránh nhầm với các lần xác minh trước.
 
 ## Trạng thái
 
@@ -21,6 +21,10 @@ Cập nhật: 2026-10-22. Chỉ trạng thái và số liệu đã xác minh tr�
 | Đăng nhập demo | PASS trên DB hiện có và DB PostgreSQL cô lập mới: admin, giảng viên cohort, học viên cohort. Mật khẩu không được ghi vào log/ảnh. |
 | Ảnh báo cáo | Playwright desktop: tiến độ học viên, báo cáo lớp và biểu đồ Chart.js trong báo cáo quản trị; lưu tại `docs/submission/screenshots/`. Báo cáo lớp hiện dùng bảng/heatmap, không phải Chart.js. |
 | Android APK | Debug APK được build tại `app/build/outputs/apk/debug/app-debug.apk`; **chưa kiểm tra trực quan APK hiện tại trên thiết bị** trong lượt chốt này. |
+| Chạy lại 2026-11-04 | Backend 50/50, Android 56/56, `assembleDebug` thành công; 0 fail/error/skip. Chạy tuần tự, `--max-workers=1`. |
+| Web journey 2026-11-04 | 24/24 bước PASS trên localhost: đăng nhập, tạo/xuất bản khóa, chương/bài/tài liệu/quiz, tạo lớp, ghi danh, học bài mở khóa tuần tự, nộp quiz, báo cáo, thảo luận và responsive mobile. Cleanup QA xác nhận thành công. |
+| Gemini health 2026-11-04 | `configured=true`, `status=access_denied`; key được nạp nhưng Google từ chối quyền truy cập model. Không kết luận Gemini trực tiếp hoạt động; gợi ý offline vẫn là phương án dự phòng. |
+| Launcher local | DB volume có sẵn giữ mật khẩu PostgreSQL cũ; đồng bộ user DB theo secret DPAPI local, không xóa volume/dữ liệu. Admin local cũng được đồng bộ secret để E2E đăng nhập. |
 
 ## Cách chạy lại
 
